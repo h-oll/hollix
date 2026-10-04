@@ -16,7 +16,7 @@ already use):
        (url "https://codeberg.org/holl/hollix.git")
        (introduction
         (make-channel-introduction
-         "ec28daaebac794e9eab6a5fe1ad441016554578f"
+         "b021b684b97c26f4368cd11d7a96ff0585fa9623"
          (openpgp-fingerprint
           "3D44 1408 48F7 C50F A1C9  889A E1B0 E029 62C1 D611"))))
       %default-channels)
