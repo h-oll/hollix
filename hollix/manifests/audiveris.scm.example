@@ -1,0 +1,5 @@
+(use-modules (guix profiles)
+             (hollix packages audiveris))
+
+(packages->manifest
+ (list audiveris))
