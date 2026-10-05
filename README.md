@@ -115,11 +115,12 @@ contains upstream binary fixtures.
   Google Docs and Markdown.
 - **Packaged versions:** `gog` 0.40.0; `gdrivemd` from commit `c30910a`.
 - **Scheme code:** builds the Go CLI and packages local Go dependencies missing
-  from the target Guix revision. It recursively rewrites Gog's dependency graph
-  to use Google API 0.297.0, without changing the dependency graph of other
-  packages that use Pub/Sub v2. It also builds the `gdrivemd` scripts and wraps
-  them to invoke the packaged `gog` binary. OAuth credentials and tokens are
-  user data and are not included.
+  from the target Guix revision. Gog uses Google API 0.297.0 in its build tree,
+  while Go source dependencies remain build-only and do not propagate into user
+  profiles. Other packages using Pub/Sub v2 retain their existing dependency
+  graph. The module also builds the `gdrivemd` scripts and wraps them to invoke
+  the packaged `gog` binary. OAuth credentials and tokens are user data and are
+  not included.
 - **Updating:** bump the pinned source revision and hash, reconcile `go.mod`
   dependencies and embedded assets, and keep the Go toolchain local to the
   declared version. Update and test `gdrivemd` separately. Its source currently

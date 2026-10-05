@@ -190,7 +190,7 @@
     (description "This package provides an implementation of the Model Context Protocol for Go.")
     (license license:expat)))
 
-(define gog-package
+(define-public gog
   (package
     (name "gog")
     (version "0.40.0")
@@ -246,7 +246,9 @@
                  (lambda _
                    ;; Go must not download the toolchain declared in go.mod.
                    (setenv "GOTOOLCHAIN" "local"))))))
-    (propagated-inputs
+    ;; Go sources are needed to compile Gog, not at runtime.  Keeping these as
+    ;; ordinary inputs prevents Go libraries from leaking into user profiles.
+    (inputs
      (list go-cloud-google-com-go-pubsub-v2
            go-filippo-io-age
            go-github-com-99designs-keyring
@@ -271,17 +273,6 @@
 and Docs.  OAuth credentials and tokens remain in user state and are not part
 of this package.")
     (license license:expat)))
-
-;; Replace the Guix-provided Google API module throughout Gog's Go dependency
-;; graph.  The older module is propagated indirectly through Pub/Sub v2's
-;; Cloud Go dependencies, so changing only Pub/Sub's direct inputs would leave
-;; another 0.272.0 reference in the profile closure.
-(define gog-google-api-rewriter
-  (package-input-rewriting
-   `((,go-google-golang-org-api . ,go-google-golang-org-api-0.297.0))))
-
-(define-public gog
-  (gog-google-api-rewriter gog-package))
 
 (define-public gdrivemd
   (package
