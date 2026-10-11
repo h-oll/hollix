@@ -5,6 +5,7 @@
   #:use-module (guix gexp)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
+  #:use-module (gnu packages node-xyz)
   #:use-module (hollix packages codex)
   #:export (codex-acp))
 
@@ -83,6 +84,101 @@
     (synopsis "JavaScript text diff implementation")
     (description "This package provides a JavaScript text diff implementation.")
     (license license:bsd-3)))
+
+(define node-path-key-3.1.1
+  (package
+    (name "node-path-key")
+    (version "3.1.1")
+    (source
+     (npm-binary-source #f "path-key" version
+                        "14kvp849wnkg6f3dqgmcb73nnb5k6b3gxf65sgf0x0qlp6n9k2ab"))
+    (build-system node-build-system)
+    (arguments
+     (list #:tests? #f
+           #:phases #~(modify-phases %standard-phases
+                        (delete 'build)
+                        #$node-delete-dev-dependencies-phase)))
+    (home-page "https://github.com/sindresorhus/path-key")
+    (synopsis "Cross-platform PATH environment variable key")
+    (description "This package provides the platform-specific PATH key.")
+    (license license:expat)))
+
+(define node-shebang-regex-3.0.0
+  (package
+    (name "node-shebang-regex")
+    (version "3.0.0")
+    (source
+     (npm-binary-source #f "shebang-regex" version
+                        "13wmb23w5srjpn9xx1c85yk5jbc5z9ypg0iz33h6nv5jdnmapnzy"))
+    (build-system node-build-system)
+    (arguments
+     (list #:tests? #f
+           #:phases #~(modify-phases %standard-phases
+                        (delete 'build)
+                        #$node-delete-dev-dependencies-phase)))
+    (home-page "https://github.com/sindresorhus/shebang-regex")
+    (synopsis "Regular expression for matching a shebang")
+    (description "This package provides a regular expression for shebang lines.")
+    (license license:expat)))
+
+(define node-shebang-command-2.0.0
+  (package
+    (name "node-shebang-command")
+    (version "2.0.0")
+    (source
+     (npm-binary-source #f "shebang-command" version
+                        "0vjmdpwcz23glkhlmxny8hc3x01zyr6hwf4qb3grq7m532ysbjws"))
+    (build-system node-build-system)
+    (arguments
+     (list #:tests? #f
+           #:phases #~(modify-phases %standard-phases
+                        (delete 'build)
+                        #$node-delete-dev-dependencies-phase)))
+    (inputs (list node-shebang-regex-3.0.0))
+    (home-page "https://github.com/sindresorhus/shebang-command")
+    (synopsis "Get the command from a shebang")
+    (description "This package extracts the command named by a shebang line.")
+    (license license:expat)))
+
+(define node-which-2.0.2
+  (package
+    (name "node-which")
+    (version "2.0.2")
+    (source
+     (npm-binary-source #f "which" version
+                        "1p2fkm4lr36s85gdjxmyr6wh86dizf0iwmffxmarcxpbvmgxyfm1"))
+    (build-system node-build-system)
+    (arguments
+     (list #:tests? #f
+           #:phases #~(modify-phases %standard-phases
+                        (delete 'build)
+                        #$node-delete-dev-dependencies-phase)))
+    (inputs (list node-isexe))
+    (home-page "https://github.com/npm/node-which")
+    (synopsis "Find an executable in PATH")
+    (description "This package locates the first instance of an executable in PATH.")
+    (license license:isc)))
+
+(define node-cross-spawn-7.0.6
+  (package
+    (name "node-cross-spawn")
+    (version "7.0.6")
+    (source
+     (npm-binary-source #f "cross-spawn" version
+                        "1siqxlydjwpihy7klgd15cah56vsmxrdm3q90gndyfj1vh63530q"))
+    (build-system node-build-system)
+    (arguments
+     (list #:tests? #f
+           #:phases #~(modify-phases %standard-phases
+                        (delete 'build)
+                        #$node-delete-dev-dependencies-phase)))
+    (inputs (list node-path-key-3.1.1
+                  node-shebang-command-2.0.0
+                  node-which-2.0.2))
+    (home-page "https://github.com/moxystudio/node-cross-spawn")
+    (synopsis "Cross-platform child process spawning")
+    (description "This package provides cross-platform child process spawning.")
+    (license license:expat)))
 
 (define node-vscode-jsonrpc-9.0.1
   (package
@@ -355,10 +451,10 @@ session.")
 (define-public codex-acp
   (package
     (name "codex-acp")
-    (version "2.1.1")
+    (version "2.2.2")
     (source
      (npm-binary-source "agentclientprotocol" "codex-acp" version
-                        "0wjqvs2r7jzjr2snvn7j6rznmnavgi5vd909fqjns04da60db84x"))
+                        "0s31p3fmbykinmiik9fvf9xmx6hf0mm3g1qnn66r574mjhya6ksz"))
     (build-system node-build-system)
     (arguments
      (list
@@ -384,7 +480,8 @@ session.")
            node-vscode-jsonrpc-9.0.1
            node-open-11.0.1
            node-diff-9.0.0
-           node-zod-4.4.3))
+           node-zod-4.4.3
+           node-cross-spawn-7.0.6))
     (home-page "https://github.com/agentclientprotocol/codex-acp")
     (synopsis "ACP adapter for Codex CLI")
     (description

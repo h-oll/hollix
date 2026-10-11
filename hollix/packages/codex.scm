@@ -33,9 +33,9 @@
 ;; Keep release details together so future version bumps are easy to review.
 ;; Update the version and source hash together.  When the lockfile changes,
 ;; regenerate the static cargo-input module with `guix import crate`.
-(define codex-version "0.160.0")
+(define codex-version "0.162.1")
 (define codex-source-hash
-  "171nyj66hf4hg9yz3r88l7h2g89xpcx8nz554hflz65v74i1ifp9")
+  "0q3wr6cx7pgylp8kgrs1alzl7kkm35dah1scknk01h4l6jlvs2g7")
 (define codex-release-tag
   (string-append "rust-v" codex-version))
 
@@ -68,7 +68,7 @@
     (build-system cargo-build-system)
     (arguments
      (list
-      #:rust rust-1.94
+      #:rust rust-1.95
       #:tests? #f
       #:install-source? #f
       #:cargo-build-flags ''("--release")
@@ -119,6 +119,45 @@
     (file-name (git-file-name "h3-source" "0.0.8.e07e694"))
     (sha256
      (base32 "1kgh4vqwbg9xq1xs9y1fw7r9a04w60jgzhnlnsd8hxzrr00380by"))))
+
+;; Codex 0.162.1 uses rmcp 3.3.0 from this workspace revision.  Keep the
+;; workspace intact so rmcp's sibling rmcp-macros path dependency resolves
+;; locally during Cargo's offline lockfile regeneration.
+(define rmcp-source
+  (origin
+    (method git-fetch)
+    (uri (git-reference
+          (url "https://github.com/modelcontextprotocol/rust-sdk")
+          (commit "3e636cab26c013eca5131103c03d20237f12c4df")))
+    (file-name (git-file-name "rmcp-source" "3.3.0.3e636ca"))
+    (sha256
+     (base32 "0r3mv5hvkwf0s35c8s1hv83w1cx2drsdn7f0y6v4qafm0dpwwlzr"))))
+
+;; The runfiles crate is not at the root of its rules_rust Git repository.
+;; Keep the pinned source available separately and point Cargo at the crate's
+;; actual manifest instead of treating the whole repository as a registry
+;; package.
+(define runfiles-source
+  (origin
+    (method git-fetch)
+    (uri (git-reference
+          (url "https://github.com/dzbarsky/rules_rust")
+          (commit "b56cbaa8465e74127f1ea216f813cd377295ad81")))
+    (file-name (git-file-name "rules-rust-runfiles" "0.1.0.b56cbaa"))
+    (sha256
+     (base32 "1sdmgr8gramp4z1kfsmbx083gpinzk8bz3vi0fchbwr1qhnmb6mq"))))
+
+;; Codex uses both crates from this Nucleo workspace revision.  Keep the
+;; checkout intact so nucleo's path dependency on nucleo-matcher resolves.
+(define nucleo-source
+  (origin
+    (method git-fetch)
+    (uri (git-reference
+          (url "https://github.com/helix-editor/nucleo")
+          (commit "4253de9faabb4e5c6d81d946a5e35a90f87347ee")))
+    (file-name (git-file-name "nucleo-source" "0.5.0.4253de9"))
+    (sha256
+     (base32 "1hpy62kgzhswhfrhipka9inh4c6iisklmvbsllbbf1njsk314vhy"))))
 
 (define rusty-v8-version "150.4.0")
 (define rusty-v8-target "x86_64-unknown-linux-gnu")
@@ -251,6 +290,13 @@ source binding used by the Codex code-mode variant.")
                    (string-append
                     "h3-quinn = { version = \"0.0.10\", path = \""
                     #$h3-source "/h3-quinn\" }"))
+                  ;; rmcp 3.3.0 is pinned to a Git revision.  Point Cargo at
+                  ;; the staged workspace so its rmcp-macros sibling remains
+                  ;; available without fetching Git during the build.
+                  (("rmcp = \\{ git = \"https://github.com/modelcontextprotocol/rust-sdk\", rev = [^}]+, version = \"=3\\.3\\.0\", default-features = false \\}")
+                   (string-append
+                    "rmcp = { version = \"=3.3.0\", path = \""
+                    #$rmcp-source "/crates/rmcp\", default-features = false }"))
                   (("crossterm = \\{ git = [^}]+\\}")
                    "crossterm = { version = \"0.29.0\" }")
                   (("ratatui = \\{ git = [^}]+\\}")
@@ -260,9 +306,11 @@ source binding used by the Codex code-mode variant.")
                   (("tungstenite = \\{ git = [^}]+\\}")
                    "tungstenite = { version = \"0.27.0\" }")
                   (("nucleo = \\{ git = [^}]+\\}")
-                   "nucleo = { version = \"0.5.0\" }")
+                   (string-append "nucleo = { version = \"0.5.0\", path = \""
+                                  #$nucleo-source "\" }"))
                   (("runfiles = \\{ git = [^}]+\\}")
-                   "runfiles = { version = \"0.1.0\" }"))
+                   (string-append "runfiles = { version = \"0.1.0\", path = \""
+                                  #$runfiles-source "/rust/runfiles\" }")))
                 ;; Keep V8-dependent crates out of the workspace and match
                 ;; Guix's existing code-mode disablement for offline builds.
                 (substitute* "Cargo.toml"
@@ -368,7 +416,7 @@ Configure providers via @file{~/.codex/config.toml}.")
      ;; it builds its package cache, without evaluating an importer.
      (cons* bash-minimal coreutils git-minimal sed
             libcap oniguruma openssl sqlite zlib `(,zstd "lib")
-            mxc-source h3-source
+            mxc-source h3-source rmcp-source runfiles-source nucleo-source
             (codex-cargo-inputs)))
     ;; Keep Guix's canonical upstream name for package metadata and source
     ;; tracking even though this channel provides the newer variant.  The

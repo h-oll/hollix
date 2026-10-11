@@ -62,10 +62,11 @@ select.
 
 - **Upstream:** [OpenAI Codex](https://github.com/openai/codex), a coding agent
   with terminal and editor workflows.
-- **Packaged versions:** `codex` 0.160.0 and `codex-without-code-mode` 0.160.0.
+- **Packaged versions:** `codex` 0.162.1 and `codex-without-code-mode` 0.162.1.
 - **Scheme code:** exports an explicit release variant and a second command
   without code mode. It uses a static offline Cargo input table, a fixed
-  upstream source archive, and the V8-backed code-mode path by default.
+  upstream source archive, Rust 1.95, a pinned local `rmcp` workspace, and the
+  V8-backed code-mode path by default.
 - **Updating:** update the source version and hash, the matching
   `hollix/packages/codex-Cargo.lock`, and the generated static crate table in
   `hollix/packages/codex-cargo-inputs.scm` together. Review Git dependencies,
@@ -87,10 +88,12 @@ contains upstream binary fixtures.
 
 - **Upstream:** [Codex ACP](https://github.com/agentclientprotocol/codex-acp),
   an Agent Client Protocol adapter for Codex.
-- **Packaged version:** `codex-acp` 2.1.1.
+- **Packaged version:** `codex-acp` 2.2.2.
 - **Scheme code:** packages the published npm JavaScript bundle and fixed Node
-  dependencies, removes its bundled `@openai/codex`, and wraps the executable
-  so `CODEX_PATH` selects this channel's `codex` package.
+  dependencies, including `cross-spawn`, removes its bundled `@openai/codex`,
+  and wraps the executable so `CODEX_PATH` selects this channel's `codex`
+  package. ACP 2.2.2 declares Codex `^0.160.1`; its use with this channel's
+  Codex 0.162.1 therefore requires an app-server compatibility smoke test.
 - **Updating:** compare the release's npm runtime dependency metadata with the
   channel's Node package definitions; update the release tarball hash and any
   changed dependency graph. Build `codex-acp` and verify it resolves the
