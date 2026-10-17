@@ -99,6 +99,36 @@ contains upstream binary fixtures.
   changed dependency graph. Build `codex-acp` and verify it resolves the
   channel's Codex executable.
 
+### `(hollix packages ement-e2ee)` — `hollix/packages/ement-e2ee.scm`
+
+- **Upstream:** [bhwdev/ement-e2ee](https://github.com/bhwdev/ement-e2ee), a
+  local Matrix proxy that adds end-to-end encryption support to Ement.el.
+- **Packaged version:** snapshot `0.1.0-0.20261013.7075a0e`, pinned to upstream
+  commit `7075a0e9e1a18f088a6faf1cc280530df4c826ce`.
+- **Scheme code:** builds the Rust CLI with Rust 1.93 and the registry
+  dependencies in the matching `Cargo.lock`. Upstream's MIT license applies.
+- **Updating:** update the source commit, hash, version, and
+  `hollix/packages/ement-e2ee-Cargo.lock` together. Recheck the Rust minimum,
+  Cargo sources, executable, and service interface.
+
+### `(hollix services ement-e2ee)` — `hollix/services/ement-e2ee.scm`
+
+This module defines `ement-e2ee-service-type` for Guix Home. It installs the
+package in the Home profile and runs `ement-e2ee serve` under the user's
+Shepherd. The default `~/.config/ement-e2ee/config.toml` must exist and name a
+Matrix homeserver before the service starts. Set `config-file` to use a
+different path. Extra service arguments follow the optional config argument.
+With `config-file` unset, the program uses its default configuration path.
+
+Example service entry in a Guix Home configuration:
+
+```scheme
+(use-modules (hollix services ement-e2ee))
+
+(service ement-e2ee-service-type
+         (ement-e2ee-configuration))
+```
+
 ### `(hollix packages emacs)` — `hollix/packages/emacs.scm`
 
 - **Upstream:** [GNU Emacs](https://www.gnu.org/software/emacs/), a
