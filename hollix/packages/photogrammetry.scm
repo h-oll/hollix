@@ -31,9 +31,9 @@
 (define poselib-source-hash
   "07sdizz3bxn1di320ga8bami43f5ca3h5i3lmk4lmj5j58s4877z")
 
-(define colmap-version "4.2.0")
+(define colmap-version "4.2.1")
 (define colmap-source-hash
-  "1i9gn8zy4anknxjmk2l7fdmbx0yli7jkydgvcjg60csa3bxk25xn")
+  "123cqw3cl17xmb2kzc8fl94ybmiybawqlpdwx576wrs16lrrxyqm")
 
 ;; Keep the GitHub archive layout in one helper so source updates stay focused
 ;; on version and hash changes instead of repeating origin boilerplate.
