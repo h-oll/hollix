@@ -58,6 +58,24 @@ select.
   smoke-test `basic-pitch --help`. The upstream test suites require optional
   data or inference setup and are disabled in these definitions.
 
+### `(hollix packages canorus)` — `hollix/packages/canorus.scm`
+
+- **Upstream:** [Canorus](https://github.com/canorusmusic/canorus), a graphical
+  music score editor.
+- **Packaged version:** `0.7.3rc3`.
+- **Scheme code:** builds the upstream CMake project against Guix's Qt 5
+  packages. Canorus installs its toolbar artwork under `share/canorus/images`
+  and refers to those files through Qt search paths. The launcher is Qt-wrapped
+  so Qt can find the SVG icon plugin supplied by `qtsvg`; without that plugin,
+  SVG toolbar icons can appear blank. The desktop entry and application icon
+  are installed separately. The release's legacy SWIG detection found no
+  usable executable in the Guix build environment, so optional Python/Ruby
+  scripting modules are disabled. Qt WebEngine is also optional upstream and
+  is not enabled in this package.
+- **Updating:** update the pinned source version and hash together. Recheck the
+  Qt 5 module requirements, Python/SWIG support, installed resources, and
+  desktop integration.
+
 ### `(hollix packages codex)` — `hollix/packages/codex.scm`
 
 - **Upstream:** [OpenAI Codex](https://github.com/openai/codex), a coding agent
