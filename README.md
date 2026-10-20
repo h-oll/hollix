@@ -233,6 +233,20 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
   the archive layout, executable and runner paths, and shared-library
   requirements; build the package and smoke-test the CLI and server startup.
 
+### `(hollix packages ollama-shell)` — `hollix/packages/ollama-shell.scm`
+
+- **Upstream:** [Ollama Shell](https://github.com/sunkencity999/ollama_shell),
+  a Python command-line agent for a local Ollama server.
+- **Packaged version:** `ollama-shell` 0.2.0, pinned to its upstream tag.
+- **Scheme code:** builds the Hatchling project with its core CLI dependencies
+  and Textual interface. The `ddgs` dependency is not available in Guix and is
+  removed from package metadata; `web_search` is unavailable, while page
+  fetching remains available. Ollama itself must be installed separately;
+  optional integrations and model downloads are not packaged.
+- **Updating:** update the source tag, commit, and fixed-output hash together.
+  Recheck project dependencies and optional feature imports; build the package
+  and smoke-test `oshell --help`.
+
 ### `(hollix packages photogrammetry)` — `hollix/packages/photogrammetry.scm`
 
 - **Upstreams:** [PoseLib](https://github.com/PoseLib/PoseLib), calibrated pose
@@ -323,6 +337,7 @@ guix build -L . -e '(@ (hollix packages codex) codex)'
 guix shell -L . audiveris -- audiveris -help
 guix shell -L . python-basic-pitch -- basic-pitch --help
 guix shell -L . ollama -- ollama --version
+guix shell -L . ollama-shell -- oshell --help
 guix shell -L . ruby-taskjuggler-3.8.4 -- tj3 --version
 ```
 
