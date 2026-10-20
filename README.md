@@ -219,6 +219,20 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
   their separate terms out of the package unless their distribution terms
   change and are reviewed.
 
+### `(hollix packages ollama)` — `hollix/packages/ollama.scm`
+
+- **Upstream:** [Ollama](https://github.com/ollama/ollama), for running large
+  language models locally.
+- **Packaged version:** `ollama` 0.40.6.
+- **Scheme code:** repacks the official x86-64 Linux release archive, patches
+  dynamic executables for Guix's loader, and provides a launcher for the
+  bundled CPU and CUDA runners. NVIDIA GPU use requires a compatible host
+  driver; AMD ROCm runners are not included. Model files are downloaded at
+  runtime.
+- **Updating:** update the release version and archive hash together. Check
+  the archive layout, executable and runner paths, and shared-library
+  requirements; build the package and smoke-test the CLI and server startup.
+
 ### `(hollix packages photogrammetry)` — `hollix/packages/photogrammetry.scm`
 
 - **Upstreams:** [PoseLib](https://github.com/PoseLib/PoseLib), calibrated pose
@@ -308,6 +322,7 @@ guix build -L . -e '(@ (hollix packages codex) codex)' -n
 guix build -L . -e '(@ (hollix packages codex) codex)'
 guix shell -L . audiveris -- audiveris -help
 guix shell -L . python-basic-pitch -- basic-pitch --help
+guix shell -L . ollama -- ollama --version
 guix shell -L . ruby-taskjuggler-3.8.4 -- tj3 --version
 ```
 
