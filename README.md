@@ -247,6 +247,24 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
   Recheck project dependencies and optional feature imports; build the package
   and smoke-test `oshell --help`.
 
+### `(hollix packages ollama-vulkan)` — `hollix/packages/ollama-vulkan.scm`
+
+- **Upstream:** uses the channel's `ollama` package and its bundled Vulkan
+  backend.
+- **Packaged version:** follows `ollama` 0.40.6.
+- **Scheme code:** wraps Ollama with Vulkan enabled by default and adds Guix's
+  `vulkan-loader` and Mesa runtime. Mesa provides the Intel ANV Vulkan ICD for
+  Iris Xe. The Vulkan SDK headers and tools are available from Guix but are not
+  runtime requirements for this prebuilt backend. `nonguix`'s Intel media
+  driver is for VA-API and is not required for Vulkan.
+- **Using:** install `ollama-vulkan` and start `ollama serve`; model downloads
+  and inference still require a local model and accessible `/dev/dri` device.
+  `OLLAMA_VULKAN`, `OLLAMA_LLM_LIBRARY`, `OLLAMA_IGPU_ENABLE`, and
+  `VK_DRIVER_FILES` may be set to override the launcher defaults.
+- **Updating:** keep the base Ollama version and Vulkan backend compatible.
+  Check Mesa's Intel ICD manifest path and loader environment variables, build
+  the package, and verify Vulkan device discovery on the target hardware.
+
 ### `(hollix packages photogrammetry)` — `hollix/packages/photogrammetry.scm`
 
 - **Upstreams:** [PoseLib](https://github.com/PoseLib/PoseLib), calibrated pose
@@ -338,6 +356,7 @@ guix shell -L . audiveris -- audiveris -help
 guix shell -L . python-basic-pitch -- basic-pitch --help
 guix shell -L . ollama -- ollama --version
 guix shell -L . ollama-shell -- oshell --help
+guix build -L . -e '(@ (hollix packages ollama-vulkan) ollama-vulkan)'
 guix shell -L . ruby-taskjuggler-3.8.4 -- tj3 --version
 ```
 
