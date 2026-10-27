@@ -468,7 +468,7 @@ session.")
               ;; the npm package's bundled @openai/codex fallback.
               (modify-json (delete-dependencies '("@openai/codex")))))
           #$node-delete-dev-dependencies-phase
-          (add-after 'install 'wrap-codex-acp
+          (add-after 'link-bins 'wrap-codex-acp
             (lambda* (#:key outputs inputs #:allow-other-keys)
               (let ((out (assoc-ref outputs "out"))
                     (codex (search-input-file inputs "/bin/codex")))
