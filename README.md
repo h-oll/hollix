@@ -80,7 +80,7 @@ select.
 
 - **Upstream:** [OpenAI Codex](https://github.com/openai/codex), a coding agent
   with terminal and editor workflows.
-- **Packaged versions:** `codex` 0.162.1 and `codex-without-code-mode` 0.162.1.
+- **Packaged versions:** `codex` 0.165.0 and `codex-without-code-mode` 0.165.0.
 - **Scheme code:** exports an explicit release variant and a second command
   without code mode. It uses a static offline Cargo input table, a fixed
   upstream source archive, Rust 1.95, a pinned local `rmcp` workspace, and the
@@ -94,7 +94,7 @@ select.
   socket.
 
 Codex's static crate table requires several source adapters (including
-`nucleo`, `runfiles`, and `h3` workspace crates). The `mxc` source remains a
+`nucleo`, `runfiles`, `h3`, and the `mxc-sdk` workspace crates). The `mxc` source remains a
 separate fixed input because its workspace dependencies require the upstream
 workspace root. Review and preserve these adaptations when regenerating the
 table. The build also removes Cargo patch tables, replaces workspace Git
@@ -106,12 +106,12 @@ contains upstream binary fixtures.
 
 - **Upstream:** [Codex ACP](https://github.com/agentclientprotocol/codex-acp),
   an Agent Client Protocol adapter for Codex.
-- **Packaged version:** `codex-acp` 2.2.2.
+- **Packaged version:** `codex-acp` 2.3.0.
 - **Scheme code:** packages the published npm JavaScript bundle and fixed Node
   dependencies, including `cross-spawn`, removes its bundled `@openai/codex`,
   and wraps the executable so `CODEX_PATH` selects this channel's `codex`
-  package. ACP 2.2.2 declares Codex `^0.160.1`; its use with this channel's
-  Codex 0.162.1 therefore requires an app-server compatibility smoke test.
+  package. ACP 2.3.0 declares Codex `^0.164.0`; this channel packages Codex
+  0.165.0, but app-server compatibility still requires a smoke test.
 - **Updating:** compare the release's npm runtime dependency metadata with the
   channel's Node package definitions; update the release tarball hash and any
   changed dependency graph. Build `codex-acp` and verify it resolves the

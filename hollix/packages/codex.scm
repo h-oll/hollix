@@ -33,9 +33,9 @@
 ;; Keep release details together so future version bumps are easy to review.
 ;; Update the version and source hash together.  When the lockfile changes,
 ;; regenerate the static cargo-input module with `guix import crate`.
-(define codex-version "0.162.1")
+(define codex-version "0.165.0")
 (define codex-source-hash
-  "0q3wr6cx7pgylp8kgrs1alzl7kkm35dah1scknk01h4l6jlvs2g7")
+  "1av2z12nr3pkr3a4xgp6vphxszdvc5qi6awc8nkyyd0jpmynl1jf")
 (define codex-release-tag
   (string-append "rust-v" codex-version))
 
@@ -93,19 +93,17 @@
     (description "Internal build base for the Hollix Codex package variants.")
     (license license:asl2.0)))
 
-;; The 0.153 series adds dependencies on the mxc workspace.  Its crate
-;; manifests live below the repository's `src` directory, so stage the whole
-;; checkout explicitly rather than relying on Cargo's one-crate-per-directory
-;; vendor layout.
+;; Codex uses mxc-sdk from this workspace revision.  Its manifests and shared
+;; workspace dependencies live below `src`, so stage the complete checkout.
 (define mxc-source
   (origin
     (method git-fetch)
     (uri (git-reference
           (url "https://github.com/microsoft/mxc")
-          (commit "6cd3d58f05d3447e67109cfb75e042803b843ca4")))
-    (file-name (git-file-name "mxc-source" "0.8.0.6cd3d58"))
+          (commit "b21120168d70befe12356411423266bfef168446")))
+    (file-name (git-file-name "mxc-source" "1.0.0.b211201"))
     (sha256
-     (base32 "0z4wndc2z43rb0drxjlk2gimc0va01i9w2m849b4yqli3zci6jax"))))
+     (base32 "1nph2g8bvv2g69z5a1yrvx5flhvw3q8id2q7bcagw1wv43djb3h0"))))
 
 ;; Codex's TCP tunnel uses two crates from this workspace by Git revision.
 ;; Stage the workspace intact: h3-quinn has a path dependency on its sibling
@@ -120,7 +118,7 @@
     (sha256
      (base32 "1kgh4vqwbg9xq1xs9y1fw7r9a04w60jgzhnlnsd8hxzrr00380by"))))
 
-;; Codex 0.162.1 uses rmcp 3.3.0 from this workspace revision.  Keep the
+;; Codex 0.165.0 uses rmcp 3.5.1 from this workspace revision.  Keep the
 ;; workspace intact so rmcp's sibling rmcp-macros path dependency resolves
 ;; locally during Cargo's offline lockfile regeneration.
 (define rmcp-source
@@ -128,10 +126,10 @@
     (method git-fetch)
     (uri (git-reference
           (url "https://github.com/modelcontextprotocol/rust-sdk")
-          (commit "3e636cab26c013eca5131103c03d20237f12c4df")))
-    (file-name (git-file-name "rmcp-source" "3.3.0.3e636ca"))
+          (commit "98a54789b80110ad210495c4ad845c89e1980471")))
+    (file-name (git-file-name "rmcp-source" "3.5.1.98a5478"))
     (sha256
-     (base32 "0r3mv5hvkwf0s35c8s1hv83w1cx2drsdn7f0y6v4qafm0dpwwlzr"))))
+     (base32 "0bnfib38adayn11iyshiz7pdq83gkx7a2fcbjrdpi7cj7snfpk69"))))
 
 ;; The runfiles crate is not at the root of its rules_rust Git repository.
 ;; Keep the pinned source available separately and point Cargo at the crate's
@@ -159,7 +157,7 @@
     (sha256
      (base32 "1hpy62kgzhswhfrhipka9inh4c6iisklmvbsllbbf1njsk314vhy"))))
 
-(define rusty-v8-version "150.4.0")
+(define rusty-v8-version "152.2.0")
 (define rusty-v8-target "x86_64-unknown-linux-gnu")
 
 (define rusty-v8-archive
@@ -169,7 +167,7 @@
                         rusty-v8-version "/librusty_v8_release_"
                         rusty-v8-target ".a.gz"))
     (sha256
-     (base32 "0v5hi3s56b6yk7nh5n0wygh7fn0j41yyjz5903r227qv0yvzssaq"))))
+     (base32 "0g7d1wpw2yair4i2acvb46mjj86m6ifz9b63na6bszxpzjd3ws5n"))))
 
 (define rusty-v8-src-binding
   (origin
@@ -178,7 +176,7 @@
                         rusty-v8-version "/src_binding_release_"
                         rusty-v8-target ".rs"))
     (sha256
-     (base32 "01l53l6nk4p5brpz2v3svqijx3hz5nqry8q7x12vdgbrwim849vp"))))
+     (base32 "1m8rqlp3xpgcvd65xsy56aq7z9qr4nl7r7g62xh8myg0vgn5yk9y"))))
 
 (define rusty-v8-prebuilt
   (package
@@ -261,25 +259,10 @@ source binding used by the Codex code-mode variant.")
                 ;; crate set.  Cargo must not fetch these Git dependencies in
                 ;; Guix's offline build environment.
                 (substitute* (find-files "." "^Cargo\\.toml$")
-                  ;; Codex uses Windows sandbox support from the mxc workspace.
-                  ;; Its source is already staged locally; point each direct
-                  ;; workspace dependency at the appropriate checkout so Cargo
-                  ;; does not attempt a Git fetch in offline mode.
-                  (("learning_mode_windows = \\{ git = \"https://github.com/microsoft/mxc\", rev = [^}]+\\}")
-                   (string-append
-                    "learning_mode_windows = { version = \"0.8.0\", path = \""
-                    #$mxc-source
-                    "/src/backends/learning_mode/windows\" }"))
-                  (("wxc_common = \\{ git = \"https://github.com/microsoft/mxc\", rev = [^}]+\\}")
-                   (string-append
-                    "wxc_common = { version = \"0.8.0\", path = \""
-                    #$mxc-source
-                    "/src/core/wxc_common\" }"))
-                  (("appcontainer_common = \\{ git = \"https://github.com/microsoft/mxc\", rev = [^}]+\\}")
-                   (string-append
-                    "appcontainer_common = { version = \"0.8.0\", path = \""
-                    #$mxc-source
-                    "/src/backends/appcontainer/common\" }"))
+                  ;; mxc-sdk is a crate in the staged mxc workspace.
+                  (("mxc-sdk = \\{ git = \"https://github.com/microsoft/mxc\", rev = [^}]+\\}")
+                   (string-append "mxc-sdk = { version = \"1.0.0\", path = \""
+                                  #$mxc-source "/src/mxc-sdk\" }"))
                   ;; The h3 workspace has an internal path dependency between
                   ;; h3-quinn and h3, so keep its checked-out workspace intact.
                   (("h3 = \\{ git = \"https://github.com/hyperium/h3\", rev = [^}]+\\}")
@@ -290,12 +273,12 @@ source binding used by the Codex code-mode variant.")
                    (string-append
                     "h3-quinn = { version = \"0.0.10\", path = \""
                     #$h3-source "/h3-quinn\" }"))
-                  ;; rmcp 3.3.0 is pinned to a Git revision.  Point Cargo at
+                  ;; rmcp 3.5.1 is pinned to a Git revision.  Point Cargo at
                   ;; the staged workspace so its rmcp-macros sibling remains
                   ;; available without fetching Git during the build.
-                  (("rmcp = \\{ git = \"https://github.com/modelcontextprotocol/rust-sdk\", rev = [^}]+, version = \"=3\\.3\\.0\", default-features = false \\}")
+                  (("rmcp = \\{ git = \"https://github.com/modelcontextprotocol/rust-sdk\", rev = [^}]+, version = \"=3\\.5\\.1\", default-features = false \\}")
                    (string-append
-                    "rmcp = { version = \"=3.3.0\", path = \""
+                    "rmcp = { version = \"=3.5.1\", path = \""
                     #$rmcp-source "/crates/rmcp\", default-features = false }"))
                   (("crossterm = \\{ git = [^}]+\\}")
                    "crossterm = { version = \"0.29.0\" }")
