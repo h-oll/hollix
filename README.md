@@ -94,13 +94,18 @@ select.
   socket.
 
 Codex's static crate table requires several source adapters (including
-`nucleo`, `runfiles`, `h3`, and the `mxc-sdk` workspace crates). The `mxc` source remains a
-separate fixed input because its workspace dependencies require the upstream
-workspace root. Review and preserve these adaptations when regenerating the
-table. The build also removes Cargo patch tables, replaces workspace Git
-dependencies with fixed vendored inputs, regenerates `Cargo.lock` offline, and
-disables the generic pre-generated-file scan because the vendored tree
-contains upstream binary fixtures.
+`nucleo`, `runfiles`, `h3`, and the `mxc-sdk` workspace crates). The `mxc`
+source remains a separate fixed input because its workspace dependencies
+require the upstream workspace root. Review and preserve these adaptations
+when regenerating the table. The build also removes Cargo patch tables,
+replaces workspace Git dependencies with fixed vendored inputs, regenerates
+`Cargo.lock` offline, and disables the generic pre-generated-file scan because
+the vendored tree contains upstream binary fixtures.
+
+- **Build status:** Package evaluation and Guix dry runs pass. A full Codex
+  build has not completed: the build filesystem ran out of space while
+  compiling `codex-app-server`. The ACP full build and end-to-end compatibility
+  smoke test remain unverified because ACP depends on this Codex package.
 
 ### `(hollix packages codex-acp)` — `hollix/packages/codex-acp.scm`
 
