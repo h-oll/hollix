@@ -18,11 +18,11 @@
 ;; In Guix, version bumps often mean updating the version string and one or
 ;; more fixed-output hashes, so centralizing them makes maintenance easier.
 (define go-package go-1.27)
-(define tailscale-version "1.104.1")
+(define tailscale-version "1.104.5")
 (define tailscale-go-git-ref-hash
-  "1f7cxhs1y3sz1jn4hq4h1yaxz4i2m33nxxfk23yblhid3dbhdkbz")
+  "0wwr54km7hri7aa67rickjqlp47yv8h93ds61i2x9h7rxq2jkbka")
 (define tailscale-go-fetch-vendor-hash
-  "0h50cbyr67nkrgxbkg7lnm13sk2za3az7v7027csx44yk5cvlkdd")
+  "19w2fnygfx171wlyccg18z1dfqgmzm6sb0h6x3dwyzd1n8vi7z9j")
 
 ;; This record is similar to Guix's built-in git-reference, but it also carries
 ;; the fixed-output hash of the fetched checkout because the custom fetcher

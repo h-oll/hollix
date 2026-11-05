@@ -17,20 +17,20 @@
   #:use-module (gnu packages golang-xyz)
   #:export (gog gdrivemd))
 
-;; Gog's Google API v0.304.0 and Cloud Auth dependency require GAX telemetry
+;; Gog's Google API v0.308.0 and Cloud Auth dependency require GAX telemetry
 ;; helpers newer than Guix's packaged v2.19.0.
-(define-public go-github-com-googleapis-gax-go-v2-2.26.2
+(define-public go-github-com-googleapis-gax-go-v2-2.27.0
   (package
     (inherit go-github-com-googleapis-gax-go-v2)
     (name "go-github-com-googleapis-gax-go-v2")
-    (version "2.26.2")
+    (version "2.27.0")
     (source
      (origin
        (method url-fetch)
-       (uri "https://proxy.golang.org/github.com/googleapis/gax-go/v2/@v/v2.26.2.zip")
-       (file-name "go-github-com-googleapis-gax-go-v2-2.26.2.zip")
+       (uri "https://proxy.golang.org/github.com/googleapis/gax-go/v2/@v/v2.27.0.zip")
+       (file-name "go-github-com-googleapis-gax-go-v2-2.27.0.zip")
        (sha256
-        (base32 "03cdkibpcd0pa0mj6gpwc8qwj9bz6chnwz67dsfp607sb47nvhcp"))))
+        (base32 "1z6h71apk172bda3d5hvyyv0l8sj0d9ga15h7q1vddf689yrd8xa"))))
     (arguments
      (list #:import-path "github.com/googleapis/gax-go/v2"
            #:unpack-path "github.com/googleapis/gax-go/v2"
@@ -40,7 +40,7 @@
                (add-after 'unpack 'normalize-module-zip-layout
                  (lambda _
                    (rename-file
-                    "src/github.com/googleapis/gax-go/v2/googleapis/gax-go/v2@v2.26.2"
+                    "src/github.com/googleapis/gax-go/v2/googleapis/gax-go/v2@v2.27.0"
                     "src/google-gax-module")
                    (delete-file-recursively
                     "src/github.com/googleapis/gax-go/v2")
@@ -53,13 +53,13 @@
       (prepend go-google-golang-org-api)))
     (native-inputs (list unzip))))
 
-;; Google API v0.304.0 requires a transport option absent from Guix's
+;; Google API v0.308.0 requires a transport option absent from Guix's
 ;; packaged Google Cloud Auth module.
-(define-public go-cloud-google-com-go-auth-0.24.1-0.20261001053825-dbc26066f70a
+(define-public go-cloud-google-com-go-auth-0.24.1
   (package
     (inherit go-cloud-google-com-go-auth)
     (name "go-cloud-google-com-go-auth")
-    (version "0.24.1-0.20261001053825-dbc26066f70a")
+    (version "0.24.1")
     (source
      (origin
        (method url-fetch)
@@ -68,7 +68,7 @@
              version ".zip"))
        (file-name (string-append name "-" version ".zip"))
        (sha256
-        (base32 "0v38zhs8k30pj3ysihh3vfbf8ydy9hk7dpfq0bx9n55vwdgyvibx"))))
+        (base32 "1imfcqwn3n62wc8azqhh4v1rw9jgf7rznli0863yxw0bi61lckd0"))))
     (arguments
      (list #:import-path "cloud.google.com/go/auth"
            #:unpack-path "cloud.google.com/go/auth"
@@ -78,7 +78,7 @@
                (add-after 'unpack 'normalize-module-zip-layout
                  (lambda _
                    (rename-file
-                    "src/cloud.google.com/go/auth/go/auth@v0.24.1-0.20261001053825-dbc26066f70a"
+                    "src/cloud.google.com/go/auth/go/auth@v0.24.1"
                     "src/google-cloud-auth-module")
                    (delete-file-recursively "src/cloud.google.com/go/auth")
                    (mkdir-p "src/cloud.google.com/go")
@@ -90,7 +90,7 @@
 (define-public go-cloud-google-com-go-pubsub-v2
   (package
     (name "go-cloud-google-com-go-pubsub-v2")
-    (version "2.7.0")
+    (version "2.8.0")
     (source
      (origin
        ;; The module proxy archive contains only this module.  Fetching the
@@ -102,7 +102,7 @@
              version ".zip"))
        (file-name (string-append name "-" version ".zip"))
        (sha256
-        (base32 "1n5ahyq0xd1sg8grhswga76kgnlck4xg4bxcx633k04awdcwqjb1"))))
+        (base32 "01aqm6qzmpwgc29xa4a49hqjg6j2w6h4mayfgsds2f0kxf9rnmvm"))))
     (build-system go-build-system)
     (arguments
      (list #:import-path "cloud.google.com/go/pubsub/v2"
@@ -116,7 +116,7 @@
                (add-after 'unpack 'normalize-module-zip-layout
                  (lambda _
                    (rename-file
-                    "src/cloud.google.com/go/pubsub/v2/go/pubsub/v2@v2.7.0"
+                    "src/cloud.google.com/go/pubsub/v2/go/pubsub/v2@v2.8.0"
                     "src/pubsub-v2-module")
                    (delete-file-recursively
                     "src/cloud.google.com/go/pubsub/v2")
@@ -184,11 +184,11 @@
     (description "This package provides JSON Schema compilation and validation for Go.")
     (license license:asl2.0)))
 
-;; Gog 0.45.0 uses Google Chat APIs absent from Guix's packaged API client.
-(define-public go-google-golang-org-api-0.304.0
+;; Gog's Google Chat APIs need a newer Google API client than Guix provides.
+(define-public go-google-golang-org-api-0.308.0
   (package
     (name "go-google-golang-org-api")
-    (version "0.304.0")
+    (version "0.308.0")
     (source
      (origin
        (method url-fetch)
@@ -197,7 +197,7 @@
              version ".zip"))
        (file-name (string-append name "-" version ".zip"))
        (sha256
-        (base32 "01r3q90pvkcz2jz1217m1azydl5b042xyah7ycjmxdczbndrpn6q"))))
+        (base32 "19z29f0ia5hafjbfkdh203lvlizj8r35ay9r2g2jylh6gc5xb4wv"))))
     (build-system go-build-system)
     (arguments
      (list #:import-path "google.golang.org/api"
@@ -207,7 +207,7 @@
            #~(modify-phases %standard-phases
                (add-after 'unpack 'normalize-module-zip-layout
                  (lambda _
-                   (rename-file "src/google.golang.org/api/api@v0.304.0"
+                   (rename-file "src/google.golang.org/api/api@v0.308.0"
                                 "src/google-api-module")
                    (delete-file-recursively "src/google.golang.org/api")
                    (mkdir-p "src/google.golang.org")
@@ -253,7 +253,7 @@
            go-github-com-spf13-cast
            go-github-com-stretchr-testify
            go-github-com-yosida95-uritemplate-v3
-           go-google-golang-org-api-0.304.0))
+           go-google-golang-org-api-0.308.0))
     (home-page "https://github.com/mark3labs/mcp-go")
     (synopsis "Go implementation of the Model Context Protocol")
     (description "This package provides an implementation of the Model Context Protocol for Go.")
@@ -262,7 +262,7 @@
 (define-public gog
   (package
     (name "gog")
-    (version "0.45.0")
+    (version "0.47.1")
     (source
      (origin
        (method git-fetch)
@@ -271,10 +271,10 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1qknf3z5z4lh5fvxp5cang17gixmqfa7yfgmg7p89zdpzwfn4741"))))
+        (base32 "0p36mvdp4r142359nbxlxhv248qgm4f1zpqjzzzblpvvdlskjfw6"))))
     (build-system go-build-system)
     (arguments
-     (list #:go go-1.26
+     (list #:go go-1.27
            #:import-path "github.com/openclaw/gogcli/cmd/gog"
            #:unpack-path "github.com/openclaw/gogcli"
            #:install-source? #f
@@ -299,13 +299,13 @@
                    ;; staged.
                    (delete-file-recursively "src/google.golang.org/api")
                    (copy-recursively
-                    #$(file-append go-google-golang-org-api-0.304.0
+                    #$(file-append go-google-golang-org-api-0.308.0
                                    "/src/google.golang.org/api")
                     "src/google.golang.org/api")))
                (add-after 'use-required-google-api 'use-isolated-pubsub
                  (lambda _
                    ;; Avoid the older Pub/Sub files propagated through the
-                   ;; Cloud Go dependency closure.  They conflict with v2.7.
+                   ;; Cloud Go dependency closure.  They conflict with v2.8.
                    (delete-file-recursively "src/cloud.google.com/go/pubsub/v2")
                    (copy-recursively
                     #$(file-append go-cloud-google-com-go-pubsub-v2
@@ -319,7 +319,7 @@
                    (delete-file-recursively "src/cloud.google.com/go/auth")
                    (copy-recursively
                     #$(file-append
-                       go-cloud-google-com-go-auth-0.24.1-0.20261001053825-dbc26066f70a
+                       go-cloud-google-com-go-auth-0.24.1
                                    "/src/cloud.google.com/go/auth")
                     "src/cloud.google.com/go/auth")
                    (rename-file "src/auth-oauth2adapt"
@@ -330,7 +330,7 @@
                    (delete-file-recursively
                     "src/github.com/googleapis/gax-go/v2")
                    (copy-recursively
-                    #$(file-append go-github-com-googleapis-gax-go-v2-2.26.2
+                    #$(file-append go-github-com-googleapis-gax-go-v2-2.27.0
                                    "/src/github.com/googleapis/gax-go/v2")
                     "src/github.com/googleapis/gax-go/v2")))
                (add-before 'build 'use-packaged-go-toolchain
@@ -341,8 +341,8 @@
     ;; ordinary inputs prevents Go libraries from leaking into user profiles.
     (inputs
      (list go-cloud-google-com-go-pubsub-v2
-           go-cloud-google-com-go-auth-0.24.1-0.20261001053825-dbc26066f70a
-           go-github-com-googleapis-gax-go-v2-2.26.2
+           go-cloud-google-com-go-auth-0.24.1
+           go-github-com-googleapis-gax-go-v2-2.27.0
            go-filippo-io-age
            go-github-com-99designs-keyring
            go-github-com-alecthomas-kong
@@ -358,7 +358,7 @@
            go-golang-org-x-sys
            go-golang-org-x-term
            go-golang-org-x-text
-           go-google-golang-org-api-0.304.0))
+           go-google-golang-org-api-0.308.0))
     (home-page "https://github.com/openclaw/gogcli")
     (synopsis "Google Workspace command-line client")
     (description

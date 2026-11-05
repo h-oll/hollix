@@ -169,14 +169,13 @@ Example service entry in a Guix Home configuration:
 - **Upstreams:** [gog](https://github.com/openclaw/gogcli), a Google Workspace
   CLI; and [gdrivemd](https://github.com/zonca/gdrivemd), scripts for syncing
   Google Docs and Markdown.
-- **Packaged versions:** `gog` 0.40.0; `gdrivemd` from commit `c30910a`.
+- **Packaged versions:** `gog` 0.47.1; `gdrivemd` from commit `c30910a`.
 - **Scheme code:** builds the Go CLI and packages local Go dependencies missing
-  from the target Guix revision. Gog uses Google API 0.297.0 in its build tree,
-  while Go source dependencies remain build-only and do not propagate into user
-  profiles. Other packages using Pub/Sub v2 retain their existing dependency
-  graph. The module also builds the `gdrivemd` scripts and wraps them to invoke
-  the packaged `gog` binary. OAuth credentials and tokens are user data and are
-  not included.
+  from the target Guix revision. Gog uses Google API 0.308.0, Pub/Sub v2 2.8.0,
+  Cloud Auth 0.24.1, and GAX 2.27.0 in its build tree. Go source dependencies
+  remain build-only and do not propagate into user profiles. The module also
+  builds the `gdrivemd` scripts and wraps them to invoke the packaged `gog`
+  binary. OAuth credentials and tokens are user data and are not included.
 - **Updating:** bump the pinned source revision and hash, reconcile `go.mod`
   dependencies and embedded assets, and keep the Go toolchain local to the
   declared version. Update and test `gdrivemd` separately. Its source currently
@@ -228,7 +227,7 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** [Ollama](https://github.com/ollama/ollama), for running large
   language models locally.
-- **Packaged version:** `ollama` 0.40.6.
+- **Packaged version:** `ollama` 0.40.14.
 - **Scheme code:** repacks the official x86-64 Linux release archive, patches
   dynamic executables for Guix's loader, and provides a launcher for the
   bundled CPU and CUDA runners. NVIDIA GPU use requires a compatible host
@@ -256,7 +255,7 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** uses the channel's `ollama` package and its bundled Vulkan
   backend.
-- **Packaged version:** follows `ollama` 0.40.6.
+- **Packaged version:** follows `ollama` 0.40.14.
 - **Scheme code:** wraps Ollama with Vulkan enabled by default and adds Guix's
   `vulkan-loader` and Mesa runtime. Mesa provides the Intel ANV Vulkan ICD for
   Iris Xe. The Vulkan SDK headers and tools are available from Guix but are not
@@ -288,7 +287,7 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** [Tailscale](https://github.com/tailscale/tailscale), a mesh
   VPN client and daemon.
-- **Packaged versions:** `tailscale` 1.102.4 and `tailscaled` 1.102.4.
+- **Packaged versions:** `tailscale` 1.104.5 and `tailscaled` 1.104.5.
 - **Scheme code:** builds the CLI and daemon from one fixed, vendored Go source
   snapshot; their commands are separate packages.
 - **Updating:** update the release revision, source hash, vendored-tree hash,
@@ -311,7 +310,7 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** [Tailscale](https://github.com/tailscale/tailscale); this is a
   service definition, not a separately versioned upstream application.
-- **Version:** follows the channel's `tailscaled` package, currently 1.102.4.
+- **Version:** follows the channel's `tailscaled` package, currently 1.104.5.
 - **Scheme code:** defines `tailscale-service-type`, which starts the packaged
   daemon under Shepherd and configures its state directory, extra arguments,
   and optional log file.

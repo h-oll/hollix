@@ -17,7 +17,7 @@
 (define-public ollama
   (package
     (name "ollama")
-    (version "0.40.6")
+    (version "0.40.14")
     (source
      (origin
        (method url-fetch)
@@ -25,7 +25,7 @@
              "https://github.com/ollama/ollama/releases/download/v"
              version "/ollama-linux-amd64.tar.zst"))
        (sha256
-        (base32 "1q65gzzwfl4xwns3lk767awca8y40kjbh6cpq93s5qi83f5snr61"))))
+        (base32 "0zg6pimbnnpgifkc7bj4wr2m98n8chk3x6h0amyd24rxik886glr"))))
     (build-system trivial-build-system)
     (arguments
      (list
