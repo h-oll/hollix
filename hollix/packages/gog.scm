@@ -128,7 +128,7 @@
      (list go-cloud-google-com-go-iam
            go-github-com-google-go-cmp
            go-github-com-google-uuid
-           go-github-com-googleapis-gax-go-v2
+           go-github-com-googleapis-gax-go-v2-2.27.0
            go-go-opencensus-io
            go-go-opentelemetry-io-otel
            go-go-opentelemetry-io-otel-sdk
