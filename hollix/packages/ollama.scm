@@ -10,14 +10,14 @@
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
-  #:export (ollama))
+  #:export (ollama ollama-0.40.14))
 
 ;; Ollama's Linux release bundles the server and its CPU/GPU runners.  Keep
 ;; this package scoped to the official x86-64 GNU/Linux release archive.
-(define-public ollama
+(define (make-ollama version hash)
   (package
     (name "ollama")
-    (version "0.40.14")
+    (version version)
     (source
      (origin
        (method url-fetch)
@@ -25,7 +25,7 @@
              "https://github.com/ollama/ollama/releases/download/v"
              version "/ollama-linux-amd64.tar.zst"))
        (sha256
-        (base32 "0zg6pimbnnpgifkc7bj4wr2m98n8chk3x6h0amyd24rxik886glr"))))
+        (base32 hash))))
     (build-system trivial-build-system)
     (arguments
      (list
@@ -96,3 +96,11 @@ driver; Ollama distributes AMD ROCm runners separately.  Model files are
 downloaded by the user at runtime and are kept in Ollama's user data
 directory.")
     (license license:expat)))
+
+(define-public ollama-0.40.14
+  (make-ollama "0.40.14"
+               "0zg6pimbnnpgifkc7bj4wr2m98n8chk3x6h0amyd24rxik886glr"))
+
+(define-public ollama
+  (make-ollama "0.40.16"
+               "13bqix2gqrbf8ay8cvv9a2s5z9vavr1r02myl7kb52dwmjrazgw7"))

@@ -5,6 +5,7 @@
   #:use-module (guix packages)
   #:export (codex-cargo-inputs))
 
+;; Static crate sources generated from Codex 0.167.1's codex-rs/Cargo.lock.
 (define rust-inflector-0.11.4
   (crate-source "Inflector" "0.11.4"
                 "1lqmcni21ifzyq41fhz6k1j2b23cmsx469s4g4sf01l78miqqhzy"))
@@ -1783,57 +1784,24 @@
                 "05mw60jmsq97vjgj607nxjkx8dl6rxv6jj9i4r2z92056id5x3pg"))
 
 (define rust-h3-0.0.8.e07e694
+  ;; TODO REVIEW: Define standalone package if this is a workspace.
   (origin
     (method git-fetch)
     (uri (git-reference
           (url "https://github.com/hyperium/h3")
           (commit "e07e69412876f7e26f026bd75a48b2704d8c8283")))
     (file-name (git-file-name "rust-h3" "0.0.8.e07e694"))
-    (sha256 (base32 "1kgh4vqwbg9xq1xs9y1fw7r9a04w60jgzhnlnsd8hxzrr00380by"))
-    (modules '((guix build utils)
-               (ice-9 ftw)))
-    (snippet
-     '(begin
-        (copy-file "README.md" "h3/README.md")
-        (for-each (lambda (file)
-                    (unless (member file '("." ".." "h3"))
-                      (delete-file-recursively file)))
-                  (scandir "."))
-        (for-each (lambda (file)
-                    (unless (member file '("." ".."))
-                      (rename-file (string-append "h3/" file) file)))
-                  (scandir "h3"))
-        (rmdir "h3")
-        (substitute* "Cargo.toml"
-          (("readme = \"\\.\\./README\\.md\"") "readme = \"README.md\""))))))
+    (sha256 (base32 "1kgh4vqwbg9xq1xs9y1fw7r9a04w60jgzhnlnsd8hxzrr00380by"))))
 
 (define rust-h3-quinn-0.0.10.e07e694
+  ;; TODO REVIEW: Define standalone package if this is a workspace.
   (origin
     (method git-fetch)
     (uri (git-reference
           (url "https://github.com/hyperium/h3")
           (commit "e07e69412876f7e26f026bd75a48b2704d8c8283")))
     (file-name (git-file-name "rust-h3-quinn" "0.0.10.e07e694"))
-    (sha256 (base32 "1kgh4vqwbg9xq1xs9y1fw7r9a04w60jgzhnlnsd8hxzrr00380by"))
-    (modules '((guix build utils)
-               (ice-9 ftw)))
-    (snippet
-     '(begin
-        (copy-file "README.md" "h3/README.md")
-        (for-each (lambda (file)
-                    (unless (member file '("." ".." "h3" "h3-datagram"
-                                           "h3-quinn"))
-                      (delete-file-recursively file)))
-                  (scandir "."))
-        (for-each (lambda (file)
-                    (unless (member file '("." ".."))
-                      (rename-file (string-append "h3-quinn/" file) file)))
-                  (scandir "h3-quinn"))
-        (rmdir "h3-quinn")
-        (substitute* "Cargo.toml"
-          (("path = \"\\.\\./h3\"") "path = \"h3\""))
-        (substitute* "h3/Cargo.toml"
-          (("readme = \"\\.\\./README\\.md\"") "readme = \"README.md\""))))))
+    (sha256 (base32 "1kgh4vqwbg9xq1xs9y1fw7r9a04w60jgzhnlnsd8hxzrr00380by"))))
 
 (define rust-half-2.7.1
   (crate-source "half" "2.7.1"
@@ -2502,9 +2470,9 @@
   (crate-source "miniz_oxide" "0.8.9"
                 "05k3pdg8bjjzayq3rf0qhpirq9k37pxnasfn4arbs17phqn6m9qz"))
 
-(define rust-mio-1.2.0
-  (crate-source "mio" "1.2.0"
-                "1hanrh4fwsfkdqdaqfidz48zz1wdix23zwn3r2x78am0garfbdsh"))
+(define rust-mio-1.2.4
+  (crate-source "mio" "1.2.4"
+                "1vl6px9zy0pwhlwnw3cknsqyzkg8bcpiwiq4cgicf2fwgywfv20p"))
 
 (define rust-ml-kem-0.2.3
   (crate-source "ml-kem" "0.2.3"
@@ -4719,9 +4687,15 @@
   (crate-source "uuid" "1.20.0"
                 "0vwpi7vnwjsfcx58nfks9sgmsz4wpbsk06qlwhgxf34v265x6j7f"))
 
-(define rust-v8-152.2.0
-  (crate-source "v8" "152.2.0"
-                "124qx96ac2l2vsymhnw6y3nxbkyg1inf7343gxy2rhx55nly23x1"))
+(define rust-v8-152.2.0.350c5a8
+  ;; TODO REVIEW: Define standalone package if this is a workspace.
+  (origin
+    (method git-fetch)
+    (uri (git-reference
+          (url "https://github.com/seanh-oai/rusty_v8.git")
+          (commit "350c5a859a9b3c84ab8701b3ad51e3b7699b30c0")))
+    (file-name (git-file-name "rust-v8" "152.2.0.350c5a8"))
+    (sha256 (base32 "0xqvwzhqira17sprhzd9xr7azb9yiv9cvms6drk93f8wwbm1l7h4"))))
 
 (define rust-valuable-0.1.1
   (crate-source "valuable" "0.1.1"
@@ -5379,10 +5353,9 @@
   (crate-source "zvariant_utils" "2.1.0"
                 "0h43h3jcw8rmjr390rdqnhkb9nn3913pgkvb75am1frxrkvwy6y5"))
 
+
 (define-cargo-inputs lookup-cargo-inputs
-
   (codex =>
-
     (list
      rust-inflector-0.11.4
      rust-addr2line-0.25.1
@@ -5989,7 +5962,7 @@
      rust-mime-guess-2.0.5
      rust-minimal-lexical-0.2.1
      rust-miniz-oxide-0.8.9
-     rust-mio-1.2.0
+     rust-mio-1.2.4
      rust-ml-kem-0.2.3
      rust-moka-0.12.13
      rust-moxcms-0.7.11
@@ -6529,7 +6502,7 @@
      rust-utf8-iter-1.0.4
      rust-utf8parse-0.2.2
      rust-uuid-1.20.0
-     rust-v8-152.2.0
+     rust-v8-152.2.0.350c5a8
      rust-valuable-0.1.1
      rust-vcpkg-0.2.15
      rust-version-compare-0.2.1

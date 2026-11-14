@@ -3,11 +3,14 @@
   #:use-module (guix base32)
   #:use-module (guix build-system copy)
   #:use-module (guix build-system go)
+  #:use-module (guix build-system gnu)
   #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module (guix gexp)
   #:use-module (guix packages)
+  #:use-module (guix records)
   #:use-module (gnu packages bash)
+  #:use-module (gnu packages base)
   #:use-module (gnu packages compression)
   #:use-module (gnu packages golang)
   #:use-module (gnu packages golang-build)
@@ -15,7 +18,9 @@
   #:use-module (gnu packages golang-crypto)
   #:use-module (gnu packages golang-web)
   #:use-module (gnu packages golang-xyz)
-  #:export (gog gdrivemd))
+  #:use-module (gnu packages nss)
+  #:use-module (ice-9 match)
+  #:export (gog gog-0.47.1 gdrivemd))
 
 ;; Gog's Google API v0.308.0 and Cloud Auth dependency require GAX telemetry
 ;; helpers newer than Guix's packaged v2.19.0.
@@ -259,7 +264,56 @@
     (description "This package provides an implementation of the Model Context Protocol for Go.")
     (license license:expat)))
 
-(define-public gog
+;; Generate a fixed, deterministic vendor snapshot for a Gog release.  This
+;; keeps each retained Gog release tied to its own go.mod and module graph.
+(define-record-type* <gog-git-reference>
+  gog-git-reference
+  make-gog-git-reference
+  gog-git-reference?
+  (url gog-git-reference-url)
+  (commit gog-git-reference-commit)
+  (sha gog-git-reference-sha256))
+
+(define* (go-fetch-vendored uri hash-algorithm hash-value name #:key system)
+  (let ((src
+         (match uri
+           (($ <gog-git-reference> url commit sha)
+            (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url url)
+                    (commit commit)))
+              (sha256 sha))))))
+    (gexp->derivation
+     (string-append (or name "gog-source") "-vendored.tar.gz")
+     (with-imported-modules '((guix build utils))
+       #~(begin
+           (use-modules (guix build utils))
+           (let ((inputs (list #+go-1.27 #+tar #+gzip #+bzip2 #+nss-certs)))
+             (set-path-environment-variable "PATH" '("/bin") inputs))
+           (mkdir "source")
+           (chdir "source")
+           (copy-recursively #$src "." #:keep-mtime? #t)
+           (for-each (lambda (file)
+                       (false-if-exception (make-file-writable file)))
+                     (find-files "."))
+           (setenv "GOCACHE" "/tmp/gog-gocache")
+           (setenv "GOMODCACHE" "/tmp/gog-gomodcache")
+           (setenv "GOTOOLCHAIN" "local")
+           (setenv "SSL_CERT_DIR"
+                   #+(file-append nss-certs "/etc/ssl/certs/"))
+           (invoke "go" "mod" "vendor")
+           (invoke "tar" "czf" #$output
+                   "--mtime=@0"
+                   "--owner=root:0"
+                   "--group=root:0"
+                   "--sort=name"
+                   "--hard-dereference"
+                   ".")))
+     #:hash hash-value
+     #:hash-algo hash-algorithm)))
+
+(define-public gog-0.47.1
   (package
     (name "gog")
     (version "0.47.1")
@@ -359,6 +413,66 @@
            go-golang-org-x-term
            go-golang-org-x-text
            go-google-golang-org-api-0.308.0))
+    (home-page "https://github.com/openclaw/gogcli")
+    (synopsis "Google Workspace command-line client")
+    (description
+     "Gog is a command-line client for Google Workspace services, including Drive
+and Docs.  OAuth credentials and tokens remain in user state and are not part
+of this package.")
+    (license license:expat)))
+
+;; The latest Gog release has a larger, faster-moving Google API dependency
+;; graph.  Build it from its pinned source and vendor snapshot so its Go module
+;; versions stay aligned without changing the retained 0.47.1 package graph.
+(define-public gog
+  (package
+    (name "gog")
+    (version "0.48.0")
+    (source
+     (origin
+       (method go-fetch-vendored)
+       (uri (gog-git-reference
+             (url "https://github.com/openclaw/gogcli")
+             (commit (string-append "v" version))
+             (sha
+              (base32 "0ld57pjlixq7xc99ndvzfbzpwz7dpbn18fywcvqky0b3ddg2py3i"))))
+       (sha256
+        (base32 "1jrlaqcwrrspppmsg0ivck4p1cwif3hwakwhcilwh904v5bcs9nk"))))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:modules '((guix build gnu-build-system)
+                  (guix build utils)
+                  (ice-9 ftw))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)
+          (delete 'check)
+          (replace 'build
+            (lambda _
+              (setenv "GOTOOLCHAIN" "local")
+              (setenv "GOCACHE" "/tmp/gog-gocache")
+              ;; Go ignores go.mod when the working directory is the system
+              ;; temporary root. Move the source tree and build from a
+              ;; subdirectory in this same phase; Guix restores cwd between
+              ;; phases, so a chdir in a separate phase would not persist.
+              ;; The unpacked archive root is the parent of the phase cwd.
+              ;; Keep Go's module root below the system temporary directory.
+              (mkdir "../gog-source")
+              (for-each
+               (lambda (file)
+                 (unless (member file '("." ".." ".agents" "gog-source"))
+                   (rename-file (string-append "../" file)
+                                (string-append "../gog-source/" file))))
+               (scandir ".."))
+              (invoke "go" "-C" "../gog-source" "build" "-trimpath"
+                      "-mod=vendor" "-o" "gog" "./cmd/gog")))
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (install-file "../gog-source/gog"
+                            (string-append (assoc-ref outputs "out")
+                                           "/bin")))))))
+    (native-inputs (list go-1.27))
     (home-page "https://github.com/openclaw/gogcli")
     (synopsis "Google Workspace command-line client")
     (description

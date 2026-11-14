@@ -16,7 +16,16 @@
 (define node-delete-dev-dependencies-phase
   `(add-after 'patch-dependencies 'delete-dev-dependencies
      (lambda _
-       (modify-json (delete-dev-dependencies)))))
+       (modify-json "package.json" (delete-dev-dependencies)))))
+
+;; The Node build system promotes peer dependencies to dependencies before
+;; installing.  The SDK marks its MCP server peer as optional and ACP does not
+;; use it, so remove it after that promotion to keep the install offline.
+(define node-delete-sdk-optional-mcp-server-phase
+  `(add-after 'patch-dependencies 'delete-sdk-optional-mcp-server
+     (lambda _
+       (modify-json "package.json"
+         (delete-dependencies '("@modelcontextprotocol/server"))))))
 
 (define (npm-binary-source scope name version hash)
   (origin
@@ -50,15 +59,16 @@
 (define node-agentclientprotocol-sdk
   (package
     (name "node-agentclientprotocol-sdk")
-    (version "2.0.2")
+    (version "2.4.0")
     (source
      (npm-binary-source "agentclientprotocol" "sdk" version
-                        "01pj0h32sdvbkbkxxmkq56kyyr9w7xywaffqsslkc73d5058639l"))
+                        "13facrsn63czbbhzq1pvpxmm55y9fk7qabvh2f4qvy14b1nwdb47"))
     (build-system node-build-system)
     (arguments
      (list #:tests? #f
            #:phases #~(modify-phases %standard-phases
                         (delete 'build)
+                        #$node-delete-sdk-optional-mcp-server-phase
                         #$node-delete-dev-dependencies-phase)))
     (inputs (list node-zod-4.4.3))
     (home-page "https://github.com/agentclientprotocol/typescript-sdk")
@@ -451,10 +461,10 @@ session.")
 (define-public codex-acp
   (package
     (name "codex-acp")
-    (version "2.3.0")
+    (version "2.6.0")
     (source
      (npm-binary-source "agentclientprotocol" "codex-acp" version
-                        "11iy0747pyn4yr9dpig725ngrai3cq35ac5r5nkr2cghaz42qa81"))
+                        "1qzbp9m0axg8llah9liryhp9n1fbhw4zxkir021b7h4fwmllnxcd"))
     (build-system node-build-system)
     (arguments
      (list

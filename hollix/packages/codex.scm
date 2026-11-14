@@ -22,7 +22,7 @@
   #:use-module (gnu packages virtualization)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module ((hollix packages codex-cargo-inputs) #:select (codex-cargo-inputs))
-  #:export (codex codex-without-code-mode))
+  #:export (codex))
 
 ;; Keep the newer Codex package in the `hollix` namespace so callers can
 ;; select it explicitly without relying on module shadowing against Guix.
@@ -33,9 +33,9 @@
 ;; Keep release details together so future version bumps are easy to review.
 ;; Update the version and source hash together.  When the lockfile changes,
 ;; regenerate the static cargo-input module with `guix import crate`.
-(define codex-version "0.165.0")
+(define codex-version "0.167.1")
 (define codex-source-hash
-  "1av2z12nr3pkr3a4xgp6vphxszdvc5qi6awc8nkyyd0jpmynl1jf")
+  "16g7q4pv0ybpxw6imwkly20l8m3zwiqfka6msqr7bdzikknmvhy1")
 (define codex-release-tag
   (string-append "rust-v" codex-version))
 
@@ -204,10 +204,9 @@
 source binding used by the Codex code-mode variant.")
     (license license:asl2.0)))
 
-;; Internal base package for the code-mode-disabled build.  The public
-;; `codex-without-code-mode` package below is only a thin renamed wrapper
-;; around this build so both variants can coexist in one profile.
-(define codex-without-code-mode-base
+;; Internal build base with code mode disabled by default.  The public Codex
+;; package below inherits it and enables code mode for the supported variant.
+(define codex-cli-base
   (package
     ;; Guix no longer provides a Codex base package, so inherit the local,
     ;; release-independent build base above.
@@ -413,10 +412,10 @@ Configure providers via @file{~/.codex/config.toml}.")
 ;; runtime wrapping than the code-mode-disabled base build.
 (define-public codex
   (package
-    (inherit codex-without-code-mode-base)
+    (inherit codex-cli-base)
     (name "codex")
     (arguments
-     (substitute-keyword-arguments (package-arguments codex-without-code-mode-base)
+     (substitute-keyword-arguments (package-arguments codex-cli-base)
        ((#:cargo-build-flags _ ''("--release"))
         ''("--release"
            "--package" "codex-cli"
@@ -460,44 +459,14 @@ Configure providers via @file{~/.codex/config.toml}.")
                                          ,(dirname rg)))))))))))
     (native-inputs
      `(("rusty-v8-prebuilt" ,rusty-v8-prebuilt)
-       ,@(package-native-inputs codex-without-code-mode-base)))
+       ,@(package-native-inputs codex-cli-base)))
     (inputs
      `(("bubblewrap" ,bubblewrap)
        ("ripgrep" ,ripgrep)
-       ,@(package-inputs codex-without-code-mode-base)))
+       ,@(package-inputs codex-cli-base)))
     (description
      "Codex is an AI-powered coding assistant that runs in the terminal.
 This variant enables codex-code-mode's V8 Javascript executor, installs the
 codex-code-mode-host companion binary, and makes bubblewrap available to the
 runtime sandbox.")))
 
-;; Public wrapper exposing the code-mode-disabled build under a distinct
-;; command name.  Use a trivial package here to avoid rebuilding the same
-;; Rust workspace just to rename /bin/codex.
-(define-public codex-without-code-mode
-  (package
-    (name "codex-without-code-mode")
-    (version codex-version)
-    (source #f)
-    (build-system trivial-build-system)
-    (arguments
-     (list
-      #:modules '((guix build utils))
-      #:builder
-      #~(begin
-          (use-modules (guix build utils))
-          (let ((bin (string-append #$output "/bin")))
-            (mkdir-p bin)
-            ;; Expose the code-mode-disabled variant under a distinct command
-            ;; so it can coexist with the default `codex` package in one
-            ;; profile.
-            (symlink (string-append #$codex-without-code-mode-base "/bin/codex")
-                     (string-append bin "/codex-without-code-mode"))))))
-    (home-page (package-home-page codex-without-code-mode-base))
-    (synopsis "Code-mode-disabled Codex command")
-    (description
-     "This package exposes the code-mode-disabled Codex CLI as the
-@command{codex-without-code-mode} command so it can be installed alongside the
-default @command{codex} package.")
-    (license license:asl2.0)
-    (properties '((upstream-name . "codex")))))

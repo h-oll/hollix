@@ -80,13 +80,17 @@ select.
 
 - **Upstream:** [OpenAI Codex](https://github.com/openai/codex), a coding agent
   with terminal and editor workflows.
-- **Packaged versions:** `codex` 0.165.0 and `codex-without-code-mode` 0.165.0.
-- **Scheme code:** exports an explicit release variant and a second command
-  without code mode. It uses a static offline Cargo input table, a fixed
-  upstream source archive, Rust 1.95, a pinned local `rmcp` workspace, and the
-  V8-backed code-mode path by default.
-- **Updating:** update the source version and hash, the matching
-  `hollix/packages/codex-Cargo.lock`, and the generated static crate table in
+- **Packaged versions:** `codex` defaults to 0.167.1; `codex@0.165.0` remains
+  selectable. Both retained releases enable the V8-backed code-mode path.
+- **Scheme code:** uses a static offline Cargo input table per Codex release,
+  Rust 1.95, pinned local workspace sources, and the V8-backed code-mode path
+  by default. The previous 0.165.0 source and crate table remain in the
+  version module.
+- **Selecting a version:** use `guix build -L . codex@0.165.0` for the retained
+  release or `guix build -L . codex` for the default.
+- **Updating:** update the source version and hash, matching
+  `hollix/packages/codex-Cargo.lock` and its release snapshot
+  `hollix/packages/codex-0.167.1-Cargo.lock`, and generated table in
   `hollix/packages/codex-cargo-inputs.scm` together. Review Git dependencies,
   workspace/source adapters, executable names, and install paths; evaluate and
   fully build both variants. Do not generate Cargo inputs dynamically while
@@ -102,25 +106,32 @@ replaces workspace Git dependencies with fixed vendored inputs, regenerates
 `Cargo.lock` offline, and disables the generic pre-generated-file scan because
 the vendored tree contains upstream binary fixtures.
 
-- **Build status:** Package evaluation and Guix dry runs pass. A full Codex
-  build has not completed: the build filesystem ran out of space while
-  compiling `codex-app-server`. The ACP full build and end-to-end compatibility
-  smoke test remain unverified because ACP depends on this Codex package.
+- **Build and smoke check:** Codex 0.167.1 built successfully with
+  `--max-silent-time=36000`; `codex --version` reports `codex-cli 0.167.1`.
+  The retained 0.165.0 and code-mode-disabled bindings load and evaluate, but
+  were not fully built in this update.
 
 ### `(hollix packages codex-acp)` — `hollix/packages/codex-acp.scm`
 
 - **Upstream:** [Codex ACP](https://github.com/agentclientprotocol/codex-acp),
   an Agent Client Protocol adapter for Codex.
-- **Packaged version:** `codex-acp` 2.3.0.
+- **Packaged versions:** `codex-acp` defaults to 2.6.0; `codex-acp@2.3.0`
+  remains selectable.
 - **Scheme code:** packages the published npm JavaScript bundle and fixed Node
   dependencies, including `cross-spawn`, removes its bundled `@openai/codex`,
   and wraps the executable so `CODEX_PATH` selects this channel's `codex`
-  package. ACP 2.3.0 declares Codex `^0.164.0`; this channel packages Codex
-  0.165.0, but app-server compatibility still requires a smoke test.
+  package. ACP 2.6.0 declares Codex `^0.166.0` and uses ACP SDK 2.4.0.
+- **Selecting a version:** use `guix build -L . codex-acp@2.3.0` for the
+  retained release or `guix build -L . codex-acp` for the default.
 - **Updating:** compare the release's npm runtime dependency metadata with the
   channel's Node package definitions; update the release tarball hash and any
   changed dependency graph. Build `codex-acp` and verify it resolves the
   channel's Codex executable.
+- **Build and smoke check:** ACP 2.6.0 built successfully with
+  `--max-silent-time=36000`; `codex-acp --version` reports 2.6.0, and
+  `codex-acp cli app-server --help` reaches the channel's Codex executable. The
+  retained ACP 2.3.0 binding loads and evaluates, but was not fully built in
+  this update.
 
 ### `(hollix packages ement-e2ee)` — `hollix/packages/ement-e2ee.scm`
 
@@ -169,13 +180,16 @@ Example service entry in a Guix Home configuration:
 - **Upstreams:** [gog](https://github.com/openclaw/gogcli), a Google Workspace
   CLI; and [gdrivemd](https://github.com/zonca/gdrivemd), scripts for syncing
   Google Docs and Markdown.
-- **Packaged versions:** `gog` 0.47.1; `gdrivemd` from commit `c30910a`.
-- **Scheme code:** builds the Go CLI and packages local Go dependencies missing
-  from the target Guix revision. Gog uses Google API 0.308.0, Pub/Sub v2 2.8.0,
-  Cloud Auth 0.24.1, and GAX 2.27.0 in its build tree. Go source dependencies
-  remain build-only and do not propagate into user profiles. The module also
-  builds the `gdrivemd` scripts and wraps them to invoke the packaged `gog`
-  binary. OAuth credentials and tokens are user data and are not included.
+- **Packaged versions:** `gog` defaults to 0.48.0; `gog@0.47.1` remains
+  available. `gdrivemd` is from commit `c30910a` and follows the default Gog.
+- **Scheme code:** retains the 0.47.1 Go dependency set and builds 0.48.0 from
+  its pinned source with a fixed vendor snapshot generated from that release's
+  module graph. Both use Guix's Go 1.27 toolchain, and Go dependencies remain
+  build-only. The module also builds the `gdrivemd` scripts and wraps them to
+  invoke the default packaged `gog` binary. OAuth credentials and tokens are
+  user data and are not included.
+- **Selecting a version:** use `guix build -L . gog@0.47.1` for the retained
+  package or `guix build -L . gog` for the default.
 - **Updating:** bump the pinned source revision and hash, reconcile `go.mod`
   dependencies and embedded assets, and keep the Go toolchain local to the
   declared version. Update and test `gdrivemd` separately. Its source currently
@@ -211,8 +225,10 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 - **Upstreams:** [MuScriptor](https://github.com/muscriptor/muscriptor),
   [Beat This](https://github.com/CPJKU/beat_this), and
   [rotary-embedding-torch](https://github.com/lucidrains/rotary-embedding-torch).
-- **Packaged versions:** `python-muscriptor` 0.3.0; `python-beat-this` 1.1.0;
-  `python-rotary-embedding-torch` 0.9.1.
+- **Packaged versions:** `python-muscriptor` defaults to 0.4.0, with
+  `python-muscriptor@0.3.0` retained; `python-beat-this` 1.1.0;
+  `python-rotary-embedding-torch` 0.9.1. Both MuScriptor versions use the
+  local `python-soundfile` 0.14.0 variant; 0.4.0 requires at least that version.
 - **Scheme code:** defines MuScriptor and two Python dependencies not available
   in the target Guix revision. MuScriptor performs multi-instrument music
   transcription. Model weights are not packaged; downloading them requires
@@ -222,12 +238,15 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
   the dependency chain, then build and test the CLI. Keep model weights and
   their separate terms out of the package unless their distribution terms
   change and are reviewed.
+- **Selecting a version:** use `guix build -L . python-muscriptor@0.3.0` for
+  the retained version or `guix build -L . python-muscriptor` for the default.
 
 ### `(hollix packages ollama)` — `hollix/packages/ollama.scm`
 
 - **Upstream:** [Ollama](https://github.com/ollama/ollama), for running large
   language models locally.
-- **Packaged version:** `ollama` 0.40.14.
+- **Packaged versions:** `ollama` defaults to 0.40.16; the 0.40.14
+  definition remains available as `ollama@0.40.14`.
 - **Scheme code:** repacks the official x86-64 Linux release archive, patches
   dynamic executables for Guix's loader, and provides a launcher for the
   bundled CPU and CUDA runners. NVIDIA GPU use requires a compatible host
@@ -236,6 +255,8 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 - **Updating:** update the release version and archive hash together. Check
   the archive layout, executable and runner paths, and shared-library
   requirements; build the package and smoke-test the CLI and server startup.
+- **Selecting a version:** use `guix build -L . ollama@0.40.14` for the
+  retained definition or `guix build -L . ollama` for the default.
 
 ### `(hollix packages ollama-shell)` — `hollix/packages/ollama-shell.scm`
 
@@ -255,7 +276,7 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** uses the channel's `ollama` package and its bundled Vulkan
   backend.
-- **Packaged version:** follows `ollama` 0.40.14.
+- **Packaged version:** follows the default `ollama` package, currently 0.40.16.
 - **Scheme code:** wraps Ollama with Vulkan enabled by default and adds Guix's
   `vulkan-loader` and Mesa runtime. Mesa provides the Intel ANV Vulkan ICD for
   Iris Xe. The Vulkan SDK headers and tools are available from Guix but are not
@@ -287,12 +308,17 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** [Tailscale](https://github.com/tailscale/tailscale), a mesh
   VPN client and daemon.
-- **Packaged versions:** `tailscale` 1.104.5 and `tailscaled` 1.104.5.
+- **Packaged versions:** `tailscale` and `tailscaled` default to 1.104.7;
+  version 1.104.5 remains available for both packages.
 - **Scheme code:** builds the CLI and daemon from one fixed, vendored Go source
-  snapshot; their commands are separate packages.
+  snapshot; their commands are separate packages. Version 1.104.7 requires
+  Go 1.27.4, supplied by a local variant of Guix's Go package.
 - **Updating:** update the release revision, source hash, vendored-tree hash,
   Go module dependencies, and toolchain requirement together. Rebuild both
   packages and check the daemon's runtime behavior.
+- **Selecting a version:** use `guix build -L . tailscale@1.104.5` or
+  `guix build -L . tailscaled@1.104.5` for the retained definitions. The
+  unqualified package names select 1.104.7.
 
 ### `(hollix packages taskjuggler)` — `hollix/packages/taskjuggler.scm`
 
@@ -310,7 +336,8 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** [Tailscale](https://github.com/tailscale/tailscale); this is a
   service definition, not a separately versioned upstream application.
-- **Version:** follows the channel's `tailscaled` package, currently 1.104.5.
+- **Version:** follows the channel's default `tailscaled` package, currently
+  1.104.7.
 - **Scheme code:** defines `tailscale-service-type`, which starts the packaged
   daemon under Shepherd and configures its state directory, extra arguments,
   and optional log file.
@@ -359,6 +386,13 @@ guix build -L . -e '(@ (hollix packages codex) codex)'
 guix shell -L . audiveris -- audiveris -help
 guix shell -L . python-basic-pitch -- basic-pitch --help
 guix shell -L . ollama -- ollama --version
+guix build -L . ollama@0.40.14
+guix build -L . tailscale
+guix build -L . tailscale@1.104.5
+guix build -L . tailscaled
+guix build -L . tailscaled@1.104.5
+guix build -L . gog
+guix build -L . gog@0.47.1
 guix shell -L . ollama-shell -- oshell --help
 guix build -L . -e '(@ (hollix packages ollama-vulkan) ollama-vulkan)'
 guix shell -L . ruby-taskjuggler-3.8.4 -- tj3 --version
