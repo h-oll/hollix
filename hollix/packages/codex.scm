@@ -21,7 +21,7 @@
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages virtualization)
   #:use-module ((guix licenses) #:prefix license:)
-  #:use-module ((hollix packages codex-cargo-inputs) #:select (codex-cargo-inputs))
+  #:use-module ((hollix packages codex-cargo-inputs-169) #:select (codex-cargo-inputs))
   #:export (codex))
 
 ;; Keep the newer Codex package in the `hollix` namespace so callers can
@@ -33,9 +33,9 @@
 ;; Keep release details together so future version bumps are easy to review.
 ;; Update the version and source hash together.  When the lockfile changes,
 ;; regenerate the static cargo-input module with `guix import crate`.
-(define codex-version "0.167.1")
+(define codex-version "0.169.0")
 (define codex-source-hash
-  "16g7q4pv0ybpxw6imwkly20l8m3zwiqfka6msqr7bdzikknmvhy1")
+  "0gh99jf16y7ab2in8kxi62gk7zv465amagqjx551svgna58k7dnr")
 (define codex-release-tag
   (string-append "rust-v" codex-version))
 
@@ -234,6 +234,28 @@ source binding used by the Codex code-mode variant.")
             ;; fixtures and cross-platform import libraries.  They are source
             ;; artifacts of dependencies, not pre-generated build outputs.
             (delete 'check-for-pregenerated-files)
+            (replace 'install
+              (lambda* (#:key outputs #:allow-other-keys)
+                ;; The build phase already builds every requested workspace
+                ;; binary.  Running cargo install once per workspace member
+                ;; recompiles the shared Codex dependency graph and can exceed
+                ;; the builder's temporary disk, so install those artifacts
+                ;; directly instead.
+                (let* ((out (assoc-ref outputs "out"))
+                       (bin (string-append out "/bin"))
+                       (binaries
+                        '("codex" "logs_client" "codex-exec"
+                          "codex-linux-sandbox" "codex-app-server"
+                          "codex-tui" "codex-code-mode-host")))
+                  (mkdir-p bin)
+                  (unless (file-exists? "target/release/codex")
+                    (error "Codex CLI binary missing after Cargo build"))
+                  (for-each
+                   (lambda (name)
+                     (let ((binary (string-append "target/release/" name)))
+                       (when (file-exists? binary)
+                         (install-file binary bin))))
+                   binaries))))
             (add-after 'chdir-to-workspace 'add-compat-source-paths
               (lambda _
                 ;; Guix's inherited patch-hardcoded-paths phase still rewrites
@@ -330,10 +352,17 @@ source binding used by the Codex code-mode variant.")
                   (substitute* cargo-files
                     (("tungstenite = \\{ git = [^}]+\\}")
                      "tungstenite = { version = \"0.27.0\" }"))
+                  ;; Codex's pinned SQLx fork widens this constraint so its
+                  ;; 0.9.0 SQLite driver accepts the locked libsqlite3-sys
+                  ;; 0.39.1.  Apply the same manifest change to the published
+                  ;; crate archive used in the offline vendor tree.
+                  (substitute*
+                      "guix-vendor/rust-sqlx-sqlite-0.9.0.tar.gz/Cargo.toml"
+                    (("<0\\.38\\.0") "<0.40.0"))
                   (substitute* (find-files "guix-vendor" "^Cargo\\.toml$")
                     (("git = \"https://github.com/openai-oss-forks/tungstenite-rs\"")
                      "version = \"0.27.0\"")
-                    (("rev = \"4fffad30fe373adbdcffab9545e9e9bf4f2fc19f\"")
+                    (("rev = \"bc589d684755a8c02da0fc7e58d0861cbfc306f1\"")
                      ""))
                   (for-each
                    (lambda (cargo-file)

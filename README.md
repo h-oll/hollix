@@ -80,18 +80,20 @@ select.
 
 - **Upstream:** [OpenAI Codex](https://github.com/openai/codex), a coding agent
   with terminal and editor workflows.
-- **Packaged versions:** `codex` defaults to 0.167.1; `codex@0.165.0` remains
-  selectable. Both retained releases enable the V8-backed code-mode path.
+- **Packaged versions:** `codex` defaults to 0.169.0; `codex@0.167.1` and
+  `codex@0.165.0` remain selectable. All versions enable the V8-backed
+  code-mode path.
 - **Scheme code:** uses a static offline Cargo input table per Codex release,
   Rust 1.95, pinned local workspace sources, and the V8-backed code-mode path
-  by default. The previous 0.165.0 source and crate table remain in the
-  version module.
-- **Selecting a version:** use `guix build -L . codex@0.165.0` for the retained
-  release or `guix build -L . codex` for the default.
+  by default. Earlier source archives and crate tables remain in versioned
+  modules.
+- **Selecting a version:** use `guix build -L . codex@0.167.1` or
+  `guix build -L . codex@0.165.0` for retained releases, or `guix build -L .
+  codex` for the default.
 - **Updating:** update the source version and hash, matching
   `hollix/packages/codex-Cargo.lock` and its release snapshot
-  `hollix/packages/codex-0.167.1-Cargo.lock`, and generated table in
-  `hollix/packages/codex-cargo-inputs.scm` together. Review Git dependencies,
+  `hollix/packages/codex-0.169.0-Cargo.lock`, and generated table in
+  `hollix/packages/codex-cargo-inputs-169.scm` together. Review Git dependencies,
   workspace/source adapters, executable names, and install paths; evaluate and
   fully build both variants. Do not generate Cargo inputs dynamically while
   Guix loads the package module: `guix pull` may evaluate it without a daemon
@@ -106,10 +108,11 @@ replaces workspace Git dependencies with fixed vendored inputs, regenerates
 `Cargo.lock` offline, and disables the generic pre-generated-file scan because
 the vendored tree contains upstream binary fixtures.
 
-- **Build and smoke check:** Codex 0.167.1 built successfully with
-  `--max-silent-time=36000`; `codex --version` reports `codex-cli 0.167.1`.
-  The retained 0.165.0 and code-mode-disabled bindings load and evaluate, but
-  were not fully built in this update.
+- **Build and smoke check:** Codex 0.169.0 built successfully with
+  `--max-silent-time=36000`; `codex --version` reports `codex-cli 0.169.0`.
+  Codex 0.167.1 also built previously, and its version-tagged package still
+  resolves. The install phase copies the already-built workspace binaries to
+  avoid recompiling each package separately and exhausting temporary storage.
 
 ### `(hollix packages codex-acp)` — `hollix/packages/codex-acp.scm`
 
@@ -228,12 +231,16 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 - **Packaged versions:** `python-muscriptor` defaults to 0.4.0, with
   `python-muscriptor@0.3.0` retained; `python-beat-this` 1.1.0;
   `python-rotary-embedding-torch` 0.9.1. Both MuScriptor versions use the
-  local `python-soundfile` 0.14.0 variant; 0.4.0 requires at least that version.
-- **Scheme code:** defines MuScriptor and two Python dependencies not available
-  in the target Guix revision. MuScriptor performs multi-instrument music
-  transcription. Model weights are not packaged; downloading them requires
-  Hugging Face authentication and acceptance of their separate CC BY-NC 4.0
-  terms. Sheet output optionally requires MuseScore 4 or newer.
+  local `python-soundfile` 0.14.0 variant. Hollix's torchaudio variant also
+  uses 0.14.0. Install the `muscriptor` CLI package in shared profiles; it
+  keeps Python dependencies out of the profile union, avoiding collisions with
+  other channels that provide SoundFile 0.13.x.
+- **Scheme code:** defines MuScriptor and its Python dependencies, including a
+  torchaudio variant aligned to SoundFile 0.14.0. MuScriptor performs
+  multi-instrument music transcription. Model weights are not packaged;
+  downloading them requires Hugging Face authentication and acceptance of
+  their separate CC BY-NC 4.0 terms. Sheet output optionally requires
+  MuseScore 4 or newer.
 - **Updating:** update each changed Python release and source hash, reconcile
   the dependency chain, then build and test the CLI. Keep model weights and
   their separate terms out of the package unless their distribution terms
@@ -359,7 +366,7 @@ Example service configuration:
 
 ## Support modules
 
-### `(hollix packages codex-cargo-inputs)` — `hollix/packages/codex-cargo-inputs.scm`
+### `(hollix packages codex-cargo-inputs-169)` — `hollix/packages/codex-cargo-inputs-169.scm`
 
 This generated helper exports Codex's static Cargo input table. It has no
 independent upstream version: regenerate it from the exact `Cargo.lock` for the

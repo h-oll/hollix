@@ -1,8 +1,10 @@
 (define-module (hollix packages muscriptor)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix build-system pyproject)
+  #:use-module (guix build-system trivial)
   #:use-module (guix base32)
   #:use-module (guix download)
+  #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (gnu packages audio)
   #:use-module (gnu packages machine-learning)
@@ -13,7 +15,8 @@
   #:export (python-rotary-embedding-torch
             python-beat-this
             python-muscriptor-0.3.0
-            python-muscriptor))
+            python-muscriptor
+            muscriptor))
 
 ;; MuScriptor uses Beat This! for tempo and downbeat tracking.  Beat This! and
 ;; its rotary-embedding dependency are kept here because they are not in Guix.
@@ -39,6 +42,30 @@
      "This package provides rotary positional embeddings for PyTorch models.")
     (license license:expat)))
 
+;; MuScriptor 0.4.0 requires soundfile >=0.14.0.  Guix's torchaudio pins
+;; soundfile 0.13.1, so use a private variant to keep MuScriptor's Python
+;; closure on one SoundFile release.
+(define python-soundfile-0.14.0
+  (package
+    (inherit python-soundfile)
+    (version "0.14.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "soundfile" version))
+       (sha256
+        (base32 "04fyq4qa2fwrlqi0d986ll7q3j3wy24kpj27cr05rjlbc4nil75s"))))
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-soundfile)
+       (append python-typing-extensions)))))
+
+(define python-torchaudio-soundfile-0.14.0
+  (package
+    (inherit python-torchaudio)
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-torchaudio)
+       (replace "python-soundfile" python-soundfile-0.14.0)))))
+
 (define-public python-beat-this
   (package
     (name "python-beat-this")
@@ -57,7 +84,7 @@
            python-rotary-embedding-torch
            python-soxr
            python-pytorch
-           python-torchaudio))
+           python-torchaudio-soundfile-0.14.0))
     (native-inputs
      (list python-setuptools))
     (home-page "https://github.com/CPJKU/beat_this")
@@ -65,22 +92,6 @@
     (description
      "Beat This! is a neural network for beat and downbeat tracking in audio.")
     (license license:expat)))
-
-;; MuScriptor 0.4.0 requires soundfile >=0.14.0; use that version for the
-;; retained 0.3.0 variant too, so both releases share the same audio runtime.
-(define python-soundfile-0.14.0
-  (package
-    (inherit python-soundfile)
-    (version "0.14.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (pypi-uri "soundfile" version))
-       (sha256
-        (base32 "04fyq4qa2fwrlqi0d986ll7q3j3wy24kpj27cr05rjlbc4nil75s"))))
-    (propagated-inputs
-     (modify-inputs (package-propagated-inputs python-soundfile)
-       (append python-typing-extensions)))))
 
 (define (make-python-muscriptor version source-hash)
   (package
@@ -137,3 +148,30 @@ weights require accepting their CC BY-NC 4.0 license on Hugging Face.")
        (uri (pypi-uri "muscriptor" version))
        (sha256 (nix-base32-string->bytevector
                 "1gbmaxwp10bac76kfmmvlwrv4mwa7vi5m3nn3mds3d0sxc2jlz3k"))))))
+
+;; Install only the command in shared profiles.  Keep Python dependencies in
+;; the package closure without unioning their site-packages into Home, where
+;; other channels may provide a different python-soundfile version.
+(define-public muscriptor
+  (package
+    (name "muscriptor")
+    (version (package-version python-muscriptor))
+    (source #f)
+    (build-system trivial-build-system)
+    (arguments
+     (list
+      #:modules '((guix build utils))
+      #:builder
+      #~(begin
+          (use-modules (guix build utils))
+          (let ((bin (string-append #$output "/bin")))
+            (mkdir-p bin)
+            (symlink (string-append #$python-muscriptor "/bin/muscriptor")
+                     (string-append bin "/muscriptor"))))))
+    (inputs (list python-muscriptor))
+    (home-page (package-home-page python-muscriptor))
+    (synopsis "MuScriptor CLI with isolated Python dependencies")
+    (description
+     "This package exposes the MuScriptor command while keeping its Python
+dependencies out of shared profiles to avoid conflicting package versions.")
+    (license (package-license python-muscriptor))))
