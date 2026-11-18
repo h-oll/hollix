@@ -136,6 +136,37 @@ the vendored tree contains upstream binary fixtures.
   retained ACP 2.3.0 binding loads and evaluates, but was not fully built in
   this update.
 
+### `(hollix packages claude-code)` — `hollix/packages/claude-code.scm`
+
+- **Upstream:** [Claude Code](https://github.com/anthropics/claude-code),
+  Anthropic's terminal coding agent.
+- **Packaged version:** `claude-code` 2.1.327 for x86-64 GNU/Linux.
+- **Scheme code:** installs Anthropic's fixed native release binary directly;
+  it does not run the network installer. The launcher sets
+  `DISABLE_AUTOUPDATER=1`. Anthropic's CLI is proprietary and has no
+  Guix-recognized free software license.
+- **Updating:** update the version and the matching Linux x64 checksum from
+  Anthropic's release manifest together. Review the binary's interpreter and
+  runtime library requirements; evaluate and build the package.
+- **Build and smoke check:** the full Guix build succeeded. `claude --version`
+  reports 2.1.327 and `claude --help` exits successfully.
+
+### `(hollix packages claude-code-acp)` — `hollix/packages/claude-code-acp.scm`
+
+- **Upstream:** [Claude Agent ACP](https://github.com/agentclientprotocol/claude-agent-acp),
+  an Agent Client Protocol adapter for Claude Code.
+- **Packaged version:** `claude-code-acp` 0.108.0 for x86-64 GNU/Linux.
+- **Scheme code:** installs the standalone ACP server from its fixed release
+  archive and selects this channel's `claude-code` through
+  `CLAUDE_CODE_EXECUTABLE`. The archive's bundled Claude CLI is not installed.
+  The wrapper sets `DISABLE_AUTOUPDATER=1` for the CLI it starts.
+- **Updating:** update the release version and archive SHA-256 together. Check
+  the standalone archive layout, its runtime libraries, and compatibility with
+  the channel's Claude Code; evaluate and build both packages.
+- **Build and smoke check:** the full Guix build succeeded. The server reports
+  version 0.108.0 and successfully answers an ACP v1 `initialize` request over
+  stdio. No authenticated Claude session was started.
+
 ### `(hollix packages ement-e2ee)` — `hollix/packages/ement-e2ee.scm`
 
 - **Upstream:** [bhwdev/ement-e2ee](https://github.com/bhwdev/ement-e2ee), a
