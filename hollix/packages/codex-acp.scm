@@ -59,10 +59,10 @@
 (define node-agentclientprotocol-sdk
   (package
     (name "node-agentclientprotocol-sdk")
-    (version "2.4.0")
+    (version "2.6.0")
     (source
      (npm-binary-source "agentclientprotocol" "sdk" version
-                        "13facrsn63czbbhzq1pvpxmm55y9fk7qabvh2f4qvy14b1nwdb47"))
+                        "1h48zmypxia54acm1xb98yrims6qdqgksr3si048hxib3s5l4n3r"))
     (build-system node-build-system)
     (arguments
      (list #:tests? #f
@@ -461,10 +461,10 @@ session.")
 (define-public codex-acp
   (package
     (name "codex-acp")
-    (version "2.6.0")
+    (version "2.7.0")
     (source
      (npm-binary-source "agentclientprotocol" "codex-acp" version
-                        "1qzbp9m0axg8llah9liryhp9n1fbhw4zxkir021b7h4fwmllnxcd"))
+                        "0kvp1q8wpflkkqw2g7g66cha1cdqpjbvin280mxyfvr98yab6jq1"))
     (build-system node-build-system)
     (arguments
      (list

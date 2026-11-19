@@ -7,7 +7,10 @@
   #:use-module (guix packages)
   #:use-module (gnu packages node-xyz)
   #:use-module ((hollix packages codex-versions) #:select (codex-0.165.0))
-  #:export (codex-acp-2.3.0))
+  #:use-module ((hollix packages codex-acp-version-260)
+                #:select (codex-acp-2.6.0))
+  #:export (codex-acp-2.3.0)
+  #:re-export (codex-acp-2.6.0))
 
 ;; Guix's upstream codex-acp package tracks the older Rust implementation from
 ;; zed-industries/codex-acp.  The current upstream package lives under the

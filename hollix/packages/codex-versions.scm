@@ -22,7 +22,10 @@
   #:use-module (gnu packages virtualization)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module ((hollix packages codex-cargo-inputs-old) #:select (codex-cargo-inputs))
-  #:export (codex-0.165.0))
+  #:use-module ((hollix packages codex-source-169)
+                #:select (codex-0.169.0))
+  #:export (codex-0.165.0)
+  #:re-export (codex-0.169.0))
 
 ;; Keep the newer Codex package in the `hollix` namespace so callers can
 ;; select it explicitly without relying on module shadowing against Guix.
