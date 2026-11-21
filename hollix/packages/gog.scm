@@ -20,7 +20,7 @@
   #:use-module (gnu packages golang-xyz)
   #:use-module (gnu packages nss)
   #:use-module (ice-9 match)
-  #:export (gog gog-0.47.1 gdrivemd))
+  #:export (gog gog-0.47.1 gog-0.48.0 gog-0.48.1 gdrivemd))
 
 ;; Gog's Google API v0.308.0 and Cloud Auth dependency require GAX telemetry
 ;; helpers newer than Guix's packaged v2.19.0.
@@ -427,17 +427,17 @@ of this package.")
 (define-public gog
   (package
     (name "gog")
-    (version "0.48.0")
+    (version "0.48.1")
     (source
      (origin
        (method go-fetch-vendored)
        (uri (gog-git-reference
              (url "https://github.com/openclaw/gogcli")
-             (commit (string-append "v" version))
+             (commit "44364d310173f8fc5aced529ba8633231d533919")
              (sha
-              (base32 "0ld57pjlixq7xc99ndvzfbzpwz7dpbn18fywcvqky0b3ddg2py3i"))))
+              (base32 "1psx9b231cdrc7lkv5m0kx5gdbmbxchk6gw4lhsn08nk2839gk4f"))))
        (sha256
-        (base32 "1jrlaqcwrrspppmsg0ivck4p1cwif3hwakwhcilwh904v5bcs9nk"))))
+        (base32 "14vanv53h42bl4nbqrfviizsi0z14nja03dvklsnwisp60wvvjyw"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -480,6 +480,23 @@ of this package.")
 and Docs.  OAuth credentials and tokens remain in user state and are not part
 of this package.")
     (license license:expat)))
+
+(define-public gog-0.48.1 gog)
+
+(define-public gog-0.48.0
+  (package
+    (inherit gog)
+    (version "0.48.0")
+    (source
+     (origin
+       (method go-fetch-vendored)
+       (uri (gog-git-reference
+             (url "https://github.com/openclaw/gogcli")
+             (commit "v0.48.0")
+             (sha
+              (base32 "0ld57pjlixq7xc99ndvzfbzpwz7dpbn18fywcvqky0b3ddg2py3i"))))
+       (sha256
+        (base32 "1jrlaqcwrrspppmsg0ivck4p1cwif3hwakwhcilwh904v5bcs9nk"))))))
 
 (define-public gdrivemd
   (package

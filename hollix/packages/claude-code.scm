@@ -6,26 +6,22 @@
   #:use-module (gnu packages base)
   #:use-module (gnu packages bash)
   #:use-module (gnu packages elf)
-  #:export (claude-code claudecode))
+  #:export (claude-code claudecode claudecode-2.1.327 claudecode-2.1.330))
 
 ;; Anthropic's installer downloads a native executable and installs an
 ;; auto-updater.  Use the versioned release binary directly and force the
 ;; documented no-auto-update mode in the launcher.
-(define claudecode-version "2.1.327")
-
-(define-public claudecode
+(define (make-claudecode version hash)
   (package
     (name "claude-code")
-    (version claudecode-version)
+    (version version)
     (source
      (origin
        (method url-fetch)
        (uri (string-append
              "https://downloads.claude.ai/claude-code-releases/"
              version "/linux-x64/claude"))
-       ;; SHA-256 from Anthropic's 2.1.327 release manifest.
-       (sha256
-        (base32 "1jbalwcn1rm90fwcb9kdjmwl7w2i223r1jx7hs1d7gqlm95p8g1l"))))
+       (sha256 (base32 hash))))
     (build-system trivial-build-system)
     (arguments
      (list
@@ -63,6 +59,18 @@ Anthropic's installer, and disables the automatic updater in its launcher.")
     ;; Anthropic distributes the CLI under its commercial terms, not a
     ;; Guix-recognized free software license.
     (license #f)))
+
+(define-public claudecode-2.1.327
+  (make-claudecode
+   "2.1.327"
+   "1jbalwcn1rm90fwcb9kdjmwl7w2i223r1jx7hs1d7gqlm95p8g1l"))
+
+(define-public claudecode
+  (make-claudecode
+   "2.1.330"
+   "1fwfzrxhrw2smzh9z07d1k9qk76bfk5pmd6bfkzinsjfh6hfm47k"))
+
+(define-public claudecode-2.1.330 claudecode)
 
 ;; Keep the binding aligned with the package and module names while also
 ;; exporting the concise spelling used by this channel's package callers.

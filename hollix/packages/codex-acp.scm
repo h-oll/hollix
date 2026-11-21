@@ -7,7 +7,11 @@
   #:use-module (guix packages)
   #:use-module (gnu packages node-xyz)
   #:use-module (hollix packages codex)
-  #:export (codex-acp))
+  #:use-module ((hollix packages codex-acp-version-270)
+                #:prefix old:)
+  #:export (codex-acp codex-acp-2.7.0 codex-acp-2.8.0))
+
+(define-public codex-acp-2.7.0 old:codex-acp-2.7.0)
 
 ;; Guix's upstream codex-acp package tracks the older Rust implementation from
 ;; zed-industries/codex-acp.  The current upstream package lives under the
@@ -59,10 +63,10 @@
 (define node-agentclientprotocol-sdk
   (package
     (name "node-agentclientprotocol-sdk")
-    (version "2.6.0")
+    (version "2.8.0")
     (source
      (npm-binary-source "agentclientprotocol" "sdk" version
-                        "1h48zmypxia54acm1xb98yrims6qdqgksr3si048hxib3s5l4n3r"))
+                        "122bx0hsgqywmkcnrl5yp2fp5b1gw5xxpm02wvqgn8fv7pxc1v09"))
     (build-system node-build-system)
     (arguments
      (list #:tests? #f
@@ -461,10 +465,10 @@ session.")
 (define-public codex-acp
   (package
     (name "codex-acp")
-    (version "2.7.0")
+    (version "2.8.0")
     (source
      (npm-binary-source "agentclientprotocol" "codex-acp" version
-                        "0kvp1q8wpflkkqw2g7g66cha1cdqpjbvin280mxyfvr98yab6jq1"))
+                        "10jpx9prlfm7isbg7ga04bchnb9rd2yl6lvmhhjmpfnpaby1qa2c"))
     (build-system node-build-system)
     (arguments
      (list
@@ -499,3 +503,5 @@ session.")
 Codex app server, translates ACP requests into Codex operations, and maps
 Codex events back into ACP clients.")
     (license license:asl2.0)))
+
+(define-public codex-acp-2.8.0 codex-acp)

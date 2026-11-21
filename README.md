@@ -80,14 +80,15 @@ select.
 
 - **Upstream:** [OpenAI Codex](https://github.com/openai/codex), a coding agent
   with terminal and editor workflows.
-- **Packaged versions:** `codex` defaults to 0.169.0; `codex@0.167.1` and
-  `codex@0.165.0` remain selectable. All versions enable the V8-backed
-  code-mode path.
+- **Packaged versions:** `codex` defaults to 0.171.0; `codex@0.170.0`,
+  `codex@0.169.0`, `codex@0.167.1`, and `codex@0.165.0` remain selectable.
+  All versions enable the V8-backed code-mode path.
 - **Scheme code:** uses a static offline Cargo input table per Codex release,
   Rust 1.95, pinned local workspace sources, and the V8-backed code-mode path
   by default. Earlier source archives and crate tables remain in versioned
   modules.
-- **Selecting a version:** use `guix build -L . codex@0.167.1` or
+- **Selecting a version:** use `guix build -L . codex@0.170.0`,
+  `guix build -L . codex@0.169.0`, `guix build -L . codex@0.167.1`, or
   `guix build -L . codex@0.165.0` for retained releases, or `guix build -L .
   codex` for the default.
 - **Updating:** update the source version and hash, matching
@@ -110,62 +111,73 @@ the vendored tree contains upstream binary fixtures.
 
 - **Build and smoke check:** Codex 0.169.0 built successfully with
   `--max-silent-time=36000`; `codex --version` reports `codex-cli 0.169.0`.
-  Codex 0.167.1 also built previously, and its version-tagged package still
-  resolves. The install phase copies the already-built workspace binaries to
-  avoid recompiling each package separately and exhausting temporary storage.
+  Codex 0.171.0 now also builds and `codex --version` reports
+  `codex-cli 0.171.0`. Codex 0.167.1 also built previously, and its
+  version-tagged package still resolves. The install phase copies the
+  already-built workspace binaries to avoid recompiling each package
+  separately and exhausting temporary storage.
 
 ### `(hollix packages codex-acp)` — `hollix/packages/codex-acp.scm`
 
 - **Upstream:** [Codex ACP](https://github.com/agentclientprotocol/codex-acp),
   an Agent Client Protocol adapter for Codex.
-- **Packaged versions:** `codex-acp` defaults to 2.6.0; `codex-acp@2.3.0`
-  remains selectable.
+- **Packaged versions:** `codex-acp` defaults to 2.8.0; the channel binding
+  `codex-acp-2.7.0` and Guix's older `codex-acp@2.3.0` remain selectable.
 - **Scheme code:** packages the published npm JavaScript bundle and fixed Node
   dependencies, including `cross-spawn`, removes its bundled `@openai/codex`,
   and wraps the executable so `CODEX_PATH` selects this channel's `codex`
-  package. ACP 2.6.0 declares Codex `^0.166.0` and uses ACP SDK 2.4.0.
-- **Selecting a version:** use `guix build -L . codex-acp@2.3.0` for the
-  retained release or `guix build -L . codex-acp` for the default.
+  package. ACP 2.8.0 uses ACP SDK 2.8.0; ACP 2.7.0 retains its SDK 2.6.0 and
+  Codex 0.170.0 dependency set.
+- **Selecting a version:** use `guix build -L . codex-acp@2.7.0` or
+  `guix build -L . codex-acp@2.3.0` for retained releases, or
+  `guix build -L . codex-acp` for the default.
 - **Updating:** compare the release's npm runtime dependency metadata with the
   channel's Node package definitions; update the release tarball hash and any
   changed dependency graph. Build `codex-acp` and verify it resolves the
   channel's Codex executable.
-- **Build and smoke check:** ACP 2.6.0 built successfully with
-  `--max-silent-time=36000`; `codex-acp --version` reports 2.6.0, and
-  `codex-acp cli app-server --help` reaches the channel's Codex executable. The
-  retained ACP 2.3.0 binding loads and evaluates, but was not fully built in
-  this update.
+- **Build and smoke check:** Codex ACP 2.8.0 builds and `codex-acp --version`
+  reports 2.8.0. The retained 2.7.0 package builds and
+  `codex-acp --version` reports 2.7.0; the 2.3.0 package resolves through its
+  version selector.
 
 ### `(hollix packages claude-code)` — `hollix/packages/claude-code.scm`
 
 - **Upstream:** [Claude Code](https://github.com/anthropics/claude-code),
   Anthropic's terminal coding agent.
-- **Packaged version:** `claude-code` 2.1.327 for x86-64 GNU/Linux.
+- **Packaged versions:** `claude-code` defaults to 2.1.330 for x86-64
+  GNU/Linux; `claudecode-2.1.327` preserves the previous release.
 - **Scheme code:** installs Anthropic's fixed native release binary directly;
   it does not run the network installer. The launcher sets
   `DISABLE_AUTOUPDATER=1`. Anthropic's CLI is proprietary and has no
   Guix-recognized free software license.
+- **Selecting a version:** use `guix build -L . claude-code@2.1.327` to select
+  the retained release.
 - **Updating:** update the version and the matching Linux x64 checksum from
   Anthropic's release manifest together. Review the binary's interpreter and
   runtime library requirements; evaluate and build the package.
 - **Build and smoke check:** the full Guix build succeeded. `claude --version`
-  reports 2.1.327 and `claude --help` exits successfully.
+  reports 2.1.330 and `claude --help` exits successfully. The retained 2.1.327
+  binding evaluates.
 
 ### `(hollix packages claude-code-acp)` — `hollix/packages/claude-code-acp.scm`
 
 - **Upstream:** [Claude Agent ACP](https://github.com/agentclientprotocol/claude-agent-acp),
   an Agent Client Protocol adapter for Claude Code.
-- **Packaged version:** `claude-code-acp` 0.108.0 for x86-64 GNU/Linux.
+- **Packaged versions:** `claude-code-acp` defaults to 0.109.0 for x86-64
+  GNU/Linux; `claudecode-acp-0.108.0` preserves the previous release and CLI
+  dependency.
 - **Scheme code:** installs the standalone ACP server from its fixed release
   archive and selects this channel's `claude-code` through
   `CLAUDE_CODE_EXECUTABLE`. The archive's bundled Claude CLI is not installed.
   The wrapper sets `DISABLE_AUTOUPDATER=1` for the CLI it starts.
+- **Selecting a version:** use `guix build -L . claude-code-acp@0.108.0` to
+  select the retained ACP server and matching Claude Code dependency.
 - **Updating:** update the release version and archive SHA-256 together. Check
   the standalone archive layout, its runtime libraries, and compatibility with
   the channel's Claude Code; evaluate and build both packages.
 - **Build and smoke check:** the full Guix build succeeded. The server reports
-  version 0.108.0 and successfully answers an ACP v1 `initialize` request over
-  stdio. No authenticated Claude session was started.
+  version 0.109.0. The retained 0.108.0 binding evaluates. No authenticated
+  Claude session was started.
 
 ### `(hollix packages ement-e2ee)` — `hollix/packages/ement-e2ee.scm`
 
@@ -214,16 +226,20 @@ Example service entry in a Guix Home configuration:
 - **Upstreams:** [gog](https://github.com/openclaw/gogcli), a Google Workspace
   CLI; and [gdrivemd](https://github.com/zonca/gdrivemd), scripts for syncing
   Google Docs and Markdown.
-- **Packaged versions:** `gog` defaults to 0.48.0; `gog@0.47.1` remains
-  available. `gdrivemd` is from commit `c30910a` and follows the default Gog.
-- **Scheme code:** retains the 0.47.1 Go dependency set and builds 0.48.0 from
-  its pinned source with a fixed vendor snapshot generated from that release's
-  module graph. Both use Guix's Go 1.27 toolchain, and Go dependencies remain
-  build-only. The module also builds the `gdrivemd` scripts and wraps them to
-  invoke the default packaged `gog` binary. OAuth credentials and tokens are
-  user data and are not included.
-- **Selecting a version:** use `guix build -L . gog@0.47.1` for the retained
-  package or `guix build -L . gog` for the default.
+- **Packaged versions:** `gog` defaults to 0.48.1; `gog@0.48.0` and
+  `gog@0.47.1` remain available. `gdrivemd` is from commit `c30910a` and
+  follows the default Gog.
+- **Scheme code:** retains the 0.47.1 Go dependency set and builds 0.48.0 and
+  0.48.1 from pinned sources with fixed vendor snapshots generated from each
+  release's module graph. Both use Guix's Go 1.27 toolchain, and Go dependencies
+  remain build-only. The module also builds the `gdrivemd` scripts and wraps
+  them to invoke the default packaged `gog` binary. OAuth credentials and tokens
+  are user data and are not included.
+- **Selecting a version:** use `guix build -L . gog@0.48.0` or
+  `guix build -L . gog@0.47.1` for retained packages, or
+  `guix build -L . gog` for the default.
+- **Build and smoke check:** Gog 0.48.1 builds; `gog --version` reports
+  `v0.48.1`. The 0.48.0 and 0.47.1 bindings resolve.
 - **Updating:** bump the pinned source revision and hash, reconcile `go.mod`
   dependencies and embedded assets, and keep the Go toolchain local to the
   declared version. Update and test `gdrivemd` separately. Its source currently
@@ -283,8 +299,8 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** [Ollama](https://github.com/ollama/ollama), for running large
   language models locally.
-- **Packaged versions:** `ollama` defaults to 0.40.16; the 0.40.14
-  definition remains available as `ollama@0.40.14`.
+- **Packaged versions:** `ollama` defaults to 0.40.17; `ollama@0.40.16` and
+  `ollama@0.40.14` remain available.
 - **Scheme code:** repacks the official x86-64 Linux release archive, patches
   dynamic executables for Guix's loader, and provides a launcher for the
   bundled CPU and CUDA runners. NVIDIA GPU use requires a compatible host
@@ -293,8 +309,12 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 - **Updating:** update the release version and archive hash together. Check
   the archive layout, executable and runner paths, and shared-library
   requirements; build the package and smoke-test the CLI and server startup.
-- **Selecting a version:** use `guix build -L . ollama@0.40.14` for the
-  retained definition or `guix build -L . ollama` for the default.
+- **Selecting a version:** use `guix build -L . ollama@0.40.16` or
+  `guix build -L . ollama@0.40.14` for retained definitions, or
+  `guix build -L . ollama` for the default.
+- **Build and smoke check:** Ollama 0.40.17 builds from the upstream x86-64
+  archive; `ollama --version` reports client version 0.40.17 and notes that no
+  local Ollama server is running.
 
 ### `(hollix packages ollama-shell)` — `hollix/packages/ollama-shell.scm`
 
@@ -314,7 +334,7 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 
 - **Upstream:** uses the channel's `ollama` package and its bundled Vulkan
   backend.
-- **Packaged version:** follows the default `ollama` package, currently 0.40.16.
+- **Packaged version:** follows the default `ollama` package, currently 0.40.17.
 - **Scheme code:** wraps Ollama with Vulkan enabled by default and adds Guix's
   `vulkan-loader` and Mesa runtime. Mesa provides the Intel ANV Vulkan ICD for
   Iris Xe. The Vulkan SDK headers and tools are available from Guix but are not
@@ -333,7 +353,7 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
 - **Upstreams:** [PoseLib](https://github.com/PoseLib/PoseLib), calibrated pose
   estimators; and [COLMAP](https://github.com/colmap/colmap), a structure-from-
   motion and multi-view-stereo application.
-- **Packaged versions:** `poselib` 2.0.5 at commit `fa7280f`; `colmap` 4.2.0.
+- **Packaged versions:** `poselib` 2.0.5 at commit `fa7280f`; `colmap` 4.2.1.
 - **Scheme code:** builds both CMake projects. PoseLib is pinned to the
   revision COLMAP expects. COLMAP's GUI build disables unavailable optional
   dependencies and network fallbacks, and applies local fixes for MVS linking,
