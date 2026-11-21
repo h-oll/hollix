@@ -342,6 +342,19 @@ push_to_gdoc local-file.md DOCUMENT_ID replace  # or append
   pins and hashes as needed, and revalidate each local patch. Configure and
   build without network access, then test the GUI/package outputs.
 
+### `(hollix packages minecraft-rl)` — `hollix/packages/minecraft-rl.scm`
+
+- **Upstream:** [Stable-Baselines3](https://github.com/DLR-RM/stable-baselines3),
+  PyTorch implementations of reinforcement-learning algorithms.
+- **Packaged version:** `python-stable-baselines3` 2.9.2.
+- **Scheme code:** adds the missing Python package using Guix's Gymnasium,
+  NumPy, CPU PyTorch, and cloudpickle packages as propagated runtime inputs.
+- **Consumer project:** project-specific manifests, npm lockfiles, and smoke
+  checks are maintained outside this channel repository.
+- **Updating:** verify SB3's Python, Gymnasium, NumPy, and PyTorch requirements;
+  update the fixed PyPI source hash and manifest versions together, then build
+  the package and run the experiment's CPU smoke check.
+
 ### `(hollix packages tailscale)` — `hollix/packages/tailscale.scm`
 
 - **Upstream:** [Tailscale](https://github.com/tailscale/tailscale), a mesh
@@ -433,6 +446,7 @@ guix build -L . gog
 guix build -L . gog@0.47.1
 guix shell -L . ollama-shell -- oshell --help
 guix build -L . -e '(@ (hollix packages ollama-vulkan) ollama-vulkan)'
+guix build -L . -e '(@ (hollix packages minecraft-rl) python-stable-baselines3)'
 guix shell -L . ruby-taskjuggler-3.8.4 -- tj3 --version
 ```
 
