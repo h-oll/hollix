@@ -17,7 +17,7 @@
 (define ement-e2ee-version "0.1.0-0.20261013.7075a0e")
 (define ement-e2ee-commit "7075a0e9e1a18f088a6faf1cc280530df4c826ce")
 (define ement-e2ee-source-hash
-  "13jgccaqgqiyavh5148yg5ljxqzi2nqp6z3c270hczpzmkycc3iq")
+  "1n4yw5w6gbq5a1a2ciyalfz7iifn40y1a92spc4s5s7ffw3kqkiz")
 
 ;; Cargo resolves dependencies offline from this exact upstream lockfile.
 (define ement-e2ee-lockfile-contents
