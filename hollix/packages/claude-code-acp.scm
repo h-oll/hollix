@@ -8,26 +8,25 @@
   #:use-module (gnu packages elf)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module ((hollix packages claude-code)
-                #:select (claudecode claudecode-2.1.327))
+                #:select (claudecode claudecode-2.1.327 claudecode-2.1.330))
   #:export (claude-code-acp claudecode-acp claudecode-acp-0.108.0
-            claudecode-acp-0.109.0))
+            claudecode-acp-0.109.0 claudecode-acp-0.113.0))
 
 ;; The official standalone release contains both the ACP server and a bundled
 ;; Claude CLI.  Install only the server and select this channel's CLI through
 ;; the upstream-supported CLAUDE_CODE_EXECUTABLE setting.
-(define-public claudecode-acp
+(define (make-claudecode-acp version hash claude)
   (package
     (name "claude-code-acp")
-    (version "0.109.0")
+    (version version)
     (source
      (origin
        (method url-fetch)
        (uri (string-append
              "https://github.com/agentclientprotocol/claude-agent-acp/releases/download/v"
              version "/claude-agent-acp-linux-x64.tar.gz"))
-       ;; SHA-256 digest published in the GitHub release asset metadata.
        (sha256
-        (base32 "1jkq2phzgb50gmrxfn9zisl1x9r1rzf05mhaddxr22k3masq2jzv"))))
+        (base32 hash))))
     (build-system copy-build-system)
     (arguments
      (list
@@ -61,7 +60,7 @@
                             bash claude payload)))
                 (chmod (string-append bin "/claude-agent-acp") #o755)))))))
     (native-inputs (list patchelf))
-    (inputs (list bash-minimal claudecode glibc))
+    (inputs (list bash-minimal claude glibc))
     (supported-systems '("x86_64-linux"))
     (home-page "https://github.com/agentclientprotocol/claude-agent-acp")
     (synopsis "Agent Client Protocol adapter for Claude Code")
@@ -71,20 +70,24 @@ Protocol.  The package uses the fixed standalone server release and directs it
 to Hollix's Claude Code package.  Automatic updates are disabled.")
     (license license:asl2.0)))
 
-(define-public claudecode-acp-0.109.0 claudecode-acp)
+(define-public claudecode-acp
+  (make-claudecode-acp
+   "0.113.0"
+   "00mgvmvijkbrpfaxpc41l9i84647z2bax1zi41fznvggrb29ada9"
+   claudecode))
+
+(define-public claudecode-acp-0.113.0 claudecode-acp)
+
+(define-public claudecode-acp-0.109.0
+  (make-claudecode-acp
+   "0.109.0"
+   "1jkq2phzgb50gmrxfn9zisl1x9r1rzf05mhaddxr22k3masq2jzv"
+   claudecode-2.1.330))
 
 (define-public claude-code-acp claudecode-acp)
 
 (define-public claudecode-acp-0.108.0
-  (package
-    (inherit claudecode-acp)
-    (version "0.108.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri (string-append
-             "https://github.com/agentclientprotocol/claude-agent-acp/releases/download/v"
-             version "/claude-agent-acp-linux-x64.tar.gz"))
-       (sha256
-        (base32 "0sfzyx2iq3d04xbxjilcx4rnw7zpvz6gp3a1xcdmak58rg0l99rh"))))
-    (inputs (list bash-minimal claudecode-2.1.327 glibc))))
+  (make-claudecode-acp
+   "0.108.0"
+   "0sfzyx2iq3d04xbxjilcx4rnw7zpvz6gp3a1xcdmak58rg0l99rh"
+   claudecode-2.1.327))

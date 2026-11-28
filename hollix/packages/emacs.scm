@@ -4,12 +4,11 @@
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module (gnu packages emacs)
-  #:export (emacs-31.1))
+  #:use-module (gnu packages emacs))
 
-;; Explicit local variant of Guix's Emacs package.  Keep all of Guix's build
-;; inputs, phases, and outputs; only the upstream GNU release is newer.
-(define-public emacs-31.1
+;; Disabled local Emacs variant retained here for reference.  It is not
+;; exported; use the Emacs package supplied by Guix.
+#; (define-public emacs-31.1
   (package/inherit emacs
     (version "31.1")
     (source

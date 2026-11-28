@@ -6,10 +6,11 @@
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
   #:use-module (gnu packages node-xyz)
-  #:use-module (hollix packages codex)
+  #:use-module ((hollix packages codex)
+                #:select (codex codex-0.171.0))
   #:use-module ((hollix packages codex-acp-version-270)
                 #:prefix old:)
-  #:export (codex-acp codex-acp-2.7.0 codex-acp-2.8.0))
+  #:export (codex-acp codex-acp-2.7.0 codex-acp-2.8.0 codex-acp-2.12.1))
 
 (define-public codex-acp-2.7.0 old:codex-acp-2.7.0)
 
@@ -80,6 +81,14 @@
     (description
      "This package provides the TypeScript SDK for the Agent Client Protocol.")
     (license license:asl2.0)))
+
+(define node-agentclientprotocol-sdk-2.9.1
+  (package
+    (inherit node-agentclientprotocol-sdk)
+    (version "2.9.1")
+    (source
+     (npm-binary-source "agentclientprotocol" "sdk" version
+                        "0s947yfsb0n058swwibxg6mr2vrz09qvkm8s84ix75dqhrccb814"))))
 
 (define node-diff-9.0.0
   (package
@@ -462,13 +471,13 @@ session.")
      "This package opens URLs, files, and executables from Node.js.")
     (license license:expat)))
 
-(define-public codex-acp
+(define (make-codex-acp version hash sdk codex-package)
   (package
     (name "codex-acp")
-    (version "2.8.0")
+    (version version)
     (source
      (npm-binary-source "agentclientprotocol" "codex-acp" version
-                        "10jpx9prlfm7isbg7ga04bchnb9rd2yl6lvmhhjmpfnpaby1qa2c"))
+                        hash))
     (build-system node-build-system)
     (arguments
      (list
@@ -489,8 +498,8 @@ session.")
                 (wrap-program (string-append out "/bin/codex-acp")
                   `("CODEX_PATH" = (,codex)))))))))
     (inputs
-     (list codex
-           node-agentclientprotocol-sdk
+     (list codex-package
+           sdk
            node-vscode-jsonrpc-9.0.1
            node-open-11.0.1
            node-diff-9.0.0
@@ -504,4 +513,18 @@ Codex app server, translates ACP requests into Codex operations, and maps
 Codex events back into ACP clients.")
     (license license:asl2.0)))
 
-(define-public codex-acp-2.8.0 codex-acp)
+(define-public codex-acp
+  (make-codex-acp
+   "2.12.1"
+   "1kkck0ipjmm46mm6d0pg8i6kvrjg7wlszbni9mi96qc52bnj627b"
+   node-agentclientprotocol-sdk-2.9.1
+   codex))
+
+(define-public codex-acp-2.12.1 codex-acp)
+
+(define-public codex-acp-2.8.0
+  (make-codex-acp
+   "2.8.0"
+   "10jpx9prlfm7isbg7ga04bchnb9rd2yl6lvmhhjmpfnpaby1qa2c"
+   node-agentclientprotocol-sdk
+   codex-0.171.0))

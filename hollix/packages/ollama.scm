@@ -10,7 +10,8 @@
   #:use-module (gnu packages commencement)
   #:use-module (gnu packages elf)
   #:use-module (gnu packages gcc)
-  #:export (ollama ollama-0.40.14 ollama-0.40.16 ollama-0.40.17))
+  #:export (ollama ollama-0.40.14 ollama-0.40.16 ollama-0.40.17
+            ollama-0.40.19))
 
 ;; Ollama's Linux release bundles the server and its CPU/GPU runners.  Keep
 ;; this package scoped to the official x86-64 GNU/Linux release archive.
@@ -106,7 +107,11 @@ directory.")
                "13bqix2gqrbf8ay8cvv9a2s5z9vavr1r02myl7kb52dwmjrazgw7"))
 
 (define-public ollama
+  (make-ollama "0.40.19"
+               "03q7s89xdps79i8q4zb27za7pw5xpwai929c3b2z90hwv6frzfcf"))
+
+(define-public ollama-0.40.19 ollama)
+
+(define-public ollama-0.40.17
   (make-ollama "0.40.17"
                "1bvr9q7pchba8jfvkflpvf3bir8h1n670hmj43j24nmciciddy8x"))
-
-(define-public ollama-0.40.17 ollama)

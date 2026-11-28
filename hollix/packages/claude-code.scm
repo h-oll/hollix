@@ -6,7 +6,8 @@
   #:use-module (gnu packages base)
   #:use-module (gnu packages bash)
   #:use-module (gnu packages elf)
-  #:export (claude-code claudecode claudecode-2.1.327 claudecode-2.1.330))
+  #:export (claude-code claudecode claudecode-2.1.327 claudecode-2.1.330
+            claudecode-2.1.332))
 
 ;; Anthropic's installer downloads a native executable and installs an
 ;; auto-updater.  Use the versioned release binary directly and force the
@@ -67,10 +68,15 @@ Anthropic's installer, and disables the automatic updater in its launcher.")
 
 (define-public claudecode
   (make-claudecode
+   "2.1.332"
+   "09nhy47wb07vpr6jipdbh75jgcc97w3d0834ja90j980pd0izpx2"))
+
+(define-public claudecode-2.1.332 claudecode)
+
+(define-public claudecode-2.1.330
+  (make-claudecode
    "2.1.330"
    "1fwfzrxhrw2smzh9z07d1k9qk76bfk5pmd6bfkzinsjfh6hfm47k"))
-
-(define-public claudecode-2.1.330 claudecode)
 
 ;; Keep the binding aligned with the package and module names while also
 ;; exporting the concise spelling used by this channel's package callers.

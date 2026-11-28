@@ -9,7 +9,7 @@
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module ((hollix packages codex-source-169)
                 #:select (codex-0.169.0))
-  #:export (codex codex-0.170.0 codex-0.171.0)
+  #:export (codex codex-0.170.0 codex-0.171.0 codex-0.172.0)
   #:re-export (codex-0.169.0))
 
 ;; Use OpenAI's pinned Linux package archive.  It includes the CLI, code-mode
@@ -65,10 +65,15 @@ and sandbox resources beside the CLI.")
 
 (define-public codex
   (codex-release-package
+   "0.172.0"
+   "14frl4sfv0jl6rikxl403nindf1wcrzy28h5dlb64zzdcl0b1qv3"))
+
+(define-public codex-0.172.0 codex)
+
+(define-public codex-0.171.0
+  (codex-release-package
    "0.171.0"
    "1cznkq660w4g04gzyrkmcbr4p6cn1jznrjiyi4agsss9axvxd4c3"))
-
-(define-public codex-0.171.0 codex)
 
 (define-public codex-0.170.0
   (codex-release-package
